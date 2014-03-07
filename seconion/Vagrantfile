@@ -16,10 +16,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
   # config.vm.box_url = "http://domain.com/path/to/above.box"
+  config.vm.box_url = "http://jonschipp.com/vm/seconion1204.box"
+
+  # Checksums for the box
   # seconion1204.box:
   # md5sum:  11f60efb9cdb67d77192d9f313e86518
   # sha1sum: 64a52128b8b45edb9f85ce448c6ac128159ba840
-  config.vm.box_url = "http://jonschipp.com/vm/seconion1204.box"
+  config.vm.box_download_checksum = "11f60efb9cdb67d77192d9f313e86518"
+  config.vm.box_download_checksum_type = "md5"
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
