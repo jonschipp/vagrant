@@ -83,6 +83,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
      v.name = "seconion-standalone"
      v.customize ["modifyvm", :id, "--memory", "2048"]
      v.customize ["modifyvm", :id, "--cpus", 3]
+     v.customize ["modifyvm", :id, "--audio", "none", "--usb", "on", "--usbehci", "off"]
    end
 
   # Shell script to provision machine
