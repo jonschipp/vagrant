@@ -4,4 +4,4 @@
 touch /tmp/ran.provision.$(date +"%d-%m-%Y").shell
 
 apt-get update
-apt-get install build-essential
+sudo apt-get install -y build-essential
