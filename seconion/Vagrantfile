@@ -18,6 +18,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # config.vm.box_url = "http://domain.com/path/to/above.box"
   config.vm.box_url = "http://jonschipp.com/vm/seconion1204.box"
 
+  # Checksums for the box
+  # seconion1204.box:
+  # md5sum:  11f60efb9cdb67d77192d9f313e86518
+  # sha1sum: 64a52128b8b45edb9f85ce448c6ac128159ba840
+  config.vm.box_download_checksum = "11f60efb9cdb67d77192d9f313e86518"
+  config.vm.box_download_checksum_type = "md5"
+
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
@@ -76,6 +83,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
      v.name = "seconion-standalone"
      v.customize ["modifyvm", :id, "--memory", "2048"]
      v.customize ["modifyvm", :id, "--cpus", 3]
+     v.customize ["modifyvm", :id, "--audio", "none", "--usb", "on", "--usbehci", "off"]
    end
 
   # Shell script to provision machine

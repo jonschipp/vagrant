@@ -1,3 +1,7 @@
+seconion1204.box:
+md5sum:  11f60efb9cdb67d77192d9f313e86518
+sha1sum: 64a52128b8b45edb9f85ce448c6ac128159ba840
+
 ###########################
 # Getting up and running: #
 ###########################
