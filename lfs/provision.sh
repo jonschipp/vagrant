@@ -4,4 +4,4 @@
 touch /tmp/ran.provision.$(date +"%d-%m-%Y").shell
 
 apt-get update
-sudo apt-get install -y build-essential bison gawk vim
+sudo apt-get install -y build-essential bison gawk vim util-linux
