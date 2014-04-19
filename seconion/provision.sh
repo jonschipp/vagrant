@@ -16,3 +16,11 @@ expect eof
 EOF
 
 sudo rm /etc/udev/rules.d/70-persistent-net.rules
+
+yes | mkfs -t ext4 /dev/sdb
+mount /dev/sdb /nsm
+
+cat <<EOF >> /etc/fstab
+# Store NSM data on other drive
+/dev/sdb	/nsm		ext4			  auto,rw,nosuid,noexec   0	  0
+EOF
