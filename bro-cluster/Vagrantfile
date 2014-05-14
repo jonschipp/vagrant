@@ -1,0 +1,61 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Install dependencies
+$install = <<SCRIPT
+sudo add-apt-repository ppa:agent-8131/ppa
+sudo apt-get update
+sudo apt-get -y install cmake make gcc g++ flex bison libpcap-dev libssl-dev python-dev swig zlib1g-dev libmagic-dev
+SCRIPT
+# libgoogle-perftools-dev
+
+$keys = <<SCRIPT
+sudo mv /home/vagrant/.ssh/insecure-ssh-key.pub /root/.ssh/authorized_keys
+sudo chmod 400 /root/.ssh/authorized_keys
+sudo chown root:root /root/.ssh/authorized_keys
+SCRIPT
+
+Vagrant.configure(2) do |config|
+
+config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/saucy/current/saucy-server-cloudimg-amd64-vagrant-disk1.box"
+config.vm.box = "saucy"
+
+  config.vm.define "master" do |master|
+    master.vm.hostname = "master.bro.org"
+    master.vm.network "private_network", ip: "10.1.1.10", :netmask => "255.255.255.0", :adapter => 2
+    master.vm.provision "file", source: "insecure-ssh-key", destination: "~/.ssh/id_rsa"
+    master.vm.provision "shell", path: "provision-master.sh"
+    master.vm.provider "virtualbox" do |vb|
+      vb.name = "bro-master"
+      vb.gui = true
+      vb.memory = 1024
+    end
+  end
+
+  config.vm.define "node1" do |node1|
+    node1.vm.hostname = "node1.bro.org"
+    node1.vm.network "private_network", ip: "10.1.1.20", :netmask => "255.255.255.0", :adapter => 2
+    node1.vm.provision "file", source: "insecure-ssh-key.pub", destination: "~/.ssh/insecure-ssh-key.pub"
+    node1.vm.provision "shell", inline: $keys
+    node1.vm.provision "shell", inline: $install
+    node1.vm.provider "virtualbox" do |v|
+      v.name = "bro-node1"
+      v.gui = true
+      v.memory = 1024
+    end
+  end
+
+  config.vm.define "node2" do |node2|
+    node2.vm.hostname = "node2.bro.org"
+    node2.vm.network "private_network", ip: "10.1.1.30", :netmask => "255.255.255.0", :adapter => 2
+    node2.vm.provision "file", source: "insecure-ssh-key.pub", destination: "~/.ssh/insecure-ssh-key.pub"
+    node2.vm.provision "shell", inline: $keys
+    node2.vm.provision "shell", inline: $install
+    node2.vm.provider "virtualbox" do |v|
+      v.name = "bro-node2"
+      v.gui = true
+      v.memory = 1024
+    end
+  end
+
+end
