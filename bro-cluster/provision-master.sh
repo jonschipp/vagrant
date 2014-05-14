@@ -9,7 +9,7 @@ sudo apt-get -y install cmake make gcc g++ flex bison \
 	libpcap-dev libssl-dev python-dev swig zlib1g-dev libmagic-dev
 
 # Install extras
-sudo apt-get -y install git libgeoip-dev gawk sendmail curl
+sudo apt-get -y install git libgeoip-dev gawk sendmail curl tcpreplay
 #ipsumdump (no package), libgoogle-perftools-dev
 wget --progress=dot:mega http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
 gunzip GeoLiteCity.dat.gz

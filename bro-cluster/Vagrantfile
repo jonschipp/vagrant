@@ -6,6 +6,7 @@ $install = <<SCRIPT
 sudo add-apt-repository ppa:agent-8131/ppa
 sudo apt-get update
 sudo apt-get -y install cmake make gcc g++ flex bison libpcap-dev libssl-dev python-dev swig zlib1g-dev libmagic-dev
+sudo apt-get -y install tcpreplay
 SCRIPT
 # libgoogle-perftools-dev
 
@@ -38,6 +39,7 @@ config.vm.box = "saucy"
     node1.vm.provision "file", source: "insecure-ssh-key.pub", destination: "~/.ssh/insecure-ssh-key.pub"
     node1.vm.provision "shell", inline: $keys
     node1.vm.provision "shell", inline: $install
+    node1.vm.provision "file", source: "dissector_fuzz.sh", destination: "dissector_fuzz.sh"
     node1.vm.provider "virtualbox" do |v|
       v.name = "bro-node1"
       v.gui = false
@@ -51,6 +53,7 @@ config.vm.box = "saucy"
     node2.vm.provision "file", source: "insecure-ssh-key.pub", destination: "~/.ssh/insecure-ssh-key.pub"
     node2.vm.provision "shell", inline: $keys
     node2.vm.provision "shell", inline: $install
+    node2.vm.provision "file", source: "dissector_fuzz.sh", destination: "dissector_fuzz.sh"
     node2.vm.provider "virtualbox" do |v|
       v.name = "bro-node2"
       v.gui = false
