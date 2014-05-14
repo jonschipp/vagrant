@@ -185,4 +185,3 @@ fi
 #http://www.linuxfromscratch.org/patches/lfs/7.5/readline-6.2-fixes-2.patch
 #http://www.linuxfromscratch.org/patches/lfs/7.5/sysvinit-2.88dsf-consolidated-1.patch
 #http://www.linuxfromscratch.org/patches/lfs/7.5/tar-1.27.1-manpage-1.patch
-#
