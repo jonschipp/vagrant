@@ -27,7 +27,7 @@ config.vm.box = "saucy"
     master.vm.provision "shell", path: "provision-master.sh"
     master.vm.provider "virtualbox" do |vb|
       vb.name = "bro-master"
-      vb.gui = true
+      vb.gui = false
       vb.memory = 1024
     end
   end
@@ -40,7 +40,7 @@ config.vm.box = "saucy"
     node1.vm.provision "shell", inline: $install
     node1.vm.provider "virtualbox" do |v|
       v.name = "bro-node1"
-      v.gui = true
+      v.gui = false
       v.memory = 1024
     end
   end
@@ -53,7 +53,7 @@ config.vm.box = "saucy"
     node2.vm.provision "shell", inline: $install
     node2.vm.provider "virtualbox" do |v|
       v.name = "bro-node2"
-      v.gui = true
+      v.gui = false
       v.memory = 1024
     end
   end
