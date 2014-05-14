@@ -8,13 +8,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "saucy"
   config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/saucy/current/saucy-server-cloudimg-amd64-vagrant-disk1.box"
+  config.vm.provision "file", source: "config", destination: "config"
+  config.vm.provision "file", source: "nlmon.cfg", destination: "nlmon.cfg"
+  config.vm.provision "file", source: "dummy.cfg", destination: "dummy.cfg"
   config.vm.provision "shell", path: "provision.sh"
 
+  # 1.) Will not work after provision script is ran because of new kernel lacking guest additions
   # config.vm.network "forwarded_port", guest: 80, host: 8080
-  # config.vm.synced_folder "../data", "/vagrant_data"
+  # config.vm.synced_folder ".", "/vagrant"
+  # 2.) Will work becuase guest additions isn't a requirement
+  # config.vm.synced_folder ".", "/vagrant", type: "rsync",
+  # rsync__exclude: ".git/"
+  # rsync_auto: "true" # Detect and copy any changes automatically
 
    config.vm.provider "virtualbox" do |vb|
-#      vb.gui = true
+      #vb.gui = true
       vb.name = "netsniff-ng"
       vb.customize ["modifyvm", :id, "--memory", "2048"]
       vb.customize ["modifyvm", :id, "--cpus", 3]
