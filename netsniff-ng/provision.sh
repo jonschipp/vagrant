@@ -60,8 +60,6 @@ sudo make install
 
 # System and network configuration
 sudo mv $HOME/nlmon.cfg /etc/network/interfaces.d/nlmon.cfg
-#sudo mv $HOME/dummy.cfg /etc/network/interfaces.d/dummy.cfg
-sudo sh -c 'echo "options dummy numdummies=2" > /etc/modprobe.d/local'
 cat > /etc/sysctl.d/10-bpf.conf <<EOF
 # Enable BPF JIT Compiler (approx. 50ns speed up)
 net.core.bpf_jit_enable = 2
