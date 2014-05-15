@@ -9,9 +9,11 @@ will provision 3 machines:
  * 1 Bro Manager
  * 2 Bro Worker Nodes
 
-Once provisioned, on the manager node, issue the following commands to start up the cluster:
+Once provisioned, connect to the manager node, and then issue the following commands to start up the cluster:
 ```
 $ vagrant ssh manager
+```
+```
 $ sudo su -
 $ ssh -i .ssh/id_rsa root@10.2.2.20 (add to known_hosts then exit)
 $ ssh -i .ssh/id_rsa root@10.2.2.30 (add to known_hosts then exit)
