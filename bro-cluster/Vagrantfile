@@ -3,18 +3,18 @@
 
 # Install dependencies
 $install = <<SCRIPT
-sudo add-apt-repository ppa:agent-8131/ppa
-sudo apt-get update
-sudo apt-get -y install cmake make gcc g++ flex bison libpcap-dev libssl-dev python-dev swig zlib1g-dev libmagic-dev
-sudo apt-get -y install tcpreplay
+add-apt-repository ppa:agent-8131/ppa
+apt-get update
+apt-get -y install cmake make gcc g++ flex bison libpcap-dev libssl-dev python-dev swig zlib1g-dev libmagic-dev
+apt-get -y install tcpreplay
 SCRIPT
 # libgoogle-perftools-dev
 
 $keys = <<SCRIPT
-sudo mkdir /root/.ssh && sudo chown root:root /root/.ssh && sudo chmod 0600 /root/.ssh
-sudo mv /home/vagrant/.ssh/insecure-ssh-key.pub /root/.ssh/authorized_keys
-sudo chmod 400 /root/.ssh/authorized_keys
-sudo chown root:root /root/.ssh/authorized_keys
+mkdir /root/.ssh && sudo chown root:root /root/.ssh && sudo chmod 0600 /root/.ssh
+mv /home/vagrant/.ssh/insecure-ssh-key.pub /root/.ssh/authorized_keys
+chmod 400 /root/.ssh/authorized_keys
+chown root:root /root/.ssh/authorized_keys
 SCRIPT
 
 Vagrant.configure(2) do |config|
@@ -27,7 +27,8 @@ config.vm.box = "saucy"
     manager.vm.network "private_network", ip: "10.1.1.10", :netmask => "255.255.255.0", :adapter => 2
     manager.vm.provision "file", source: "insecure-ssh-key", destination: "~/.ssh/id_rsa"
     manager.vm.provision "file", source: "node.cfg", destination: "node.cfg"
-    manager.vm.provision "shell", path: "provision-manager.sh"
+    # Set to args to "latest" or two-digit version number e.g. "2.2"
+    manager.vm.provision "shell", path: "provision-manager.sh", privileged: "true", args: "latest"
     manager.vm.provider "virtualbox" do |vb|
       vb.name = "bro-manager"
       vb.gui = false
