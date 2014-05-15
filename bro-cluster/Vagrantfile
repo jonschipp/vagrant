@@ -11,6 +11,7 @@ SCRIPT
 # libgoogle-perftools-dev
 
 $keys = <<SCRIPT
+sudo mkdir /root/.ssh && sudo chown root:root /root/.ssh && sudo chmod 0600 /root/.ssh
 sudo mv /home/vagrant/.ssh/insecure-ssh-key.pub /root/.ssh/authorized_keys
 sudo chmod 400 /root/.ssh/authorized_keys
 sudo chown root:root /root/.ssh/authorized_keys
