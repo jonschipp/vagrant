@@ -26,6 +26,7 @@ config.vm.box = "saucy"
     master.vm.network "private_network", ip: "10.1.1.10", :netmask => "255.255.255.0", :adapter => 2
     master.vm.provision "file", source: "insecure-ssh-key", destination: "~/.ssh/id_rsa"
     master.vm.provision "shell", path: "provision-master.sh"
+    master.vm.provision "file", source: "node.cfg", destination: "node.cfg"
     master.vm.provider "virtualbox" do |vb|
       vb.name = "bro-master"
       vb.gui = false
