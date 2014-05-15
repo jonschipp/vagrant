@@ -25,8 +25,8 @@ config.vm.box = "saucy"
     manager.vm.hostname = "manager.bro.org"
     manager.vm.network "private_network", ip: "10.1.1.10", :netmask => "255.255.255.0", :adapter => 2
     manager.vm.provision "file", source: "insecure-ssh-key", destination: "~/.ssh/id_rsa"
-    manager.vm.provision "shell", path: "provision-manager.sh"
     manager.vm.provision "file", source: "node.cfg", destination: "node.cfg"
+    manager.vm.provision "shell", path: "provision-manager.sh"
     manager.vm.provider "virtualbox" do |vb|
       vb.name = "bro-manager"
       vb.gui = false
