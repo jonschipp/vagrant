@@ -15,7 +15,7 @@ function configure_ssh {
 	chmod 600 $ROOT/.ssh
     fi
 
-    if [ -f $ROOT/.ssh/id_rsa ]; then
+    if [ ! -f $ROOT/.ssh/id_rsa ]; then
 	mv $HOME/.ssh/id_rsa $ROOT/.ssh/id_rsa
 	chmod 400 $ROOT/.ssh/id_rsa
     fi
