@@ -15,7 +15,7 @@ $ ssh -p 2222 demo@127.0.0.1 -o UserKnownHostsFile=/dev/null
 
 The password for the demo user is:
 ```
-bro
+demo
 ```
 
 This is a demonstration of using Linux Containers to sandbox applications for the purpose of training.
