@@ -21,8 +21,8 @@ $ vagrant ssh manager
 ```
 ```
 $ sudo su -
-$ ssh -i .ssh/id_rsa root@10.2.2.20 (add to known_hosts then exit)
-$ ssh -i .ssh/id_rsa root@10.2.2.30 (add to known_hosts then exit)
+$ ssh -i .ssh/id_rsa root@10.1.1.20 (add to known_hosts then exit)
+$ ssh -i .ssh/id_rsa root@10.1.1.30 (add to known_hosts then exit)
 $ broctl install && broctl check && broctl start
 ```
 
