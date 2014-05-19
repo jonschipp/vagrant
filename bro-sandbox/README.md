@@ -5,7 +5,7 @@ Bro-Cluster
 $ vagrant up
 ```
 
-will provision a machine which Linux Containers (LXC) from a Dockerfile that have Bro installed.
+will provision a machine which uses Linux Containers (LXC) containing Bro from a Dockerfile.
 When a user ssh's to the demo account on the machine they're placed in a contained Linux environment.
 The environment is deleted upon termination of the SSH session.
 
@@ -18,4 +18,4 @@ The password for the demo user is:
 bro
 ```
 
-This is a demonstration of using Linux Containers to sandbox applications for the purpose of conference training.
+This is a demonstration of using Linux Containers to sandbox applications for the purpose of training.
