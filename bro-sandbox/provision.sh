@@ -19,7 +19,7 @@ EOF
 
 sudo chmod 0440 /etc/sudoers.d/sandbox
 sudo chmod a+x /usr/local/bin/sandbox
-sudo echo /usr/local/bin/sandbox >> /etc/shells
+sudo sh -c 'echo /usr/local/bin/sandbox >> /etc/shells'
 sudo adduser --disabled-login --gecos "" --shell /usr/local/bin/sandbox demo
 
 /usr/bin/expect <<EOF
