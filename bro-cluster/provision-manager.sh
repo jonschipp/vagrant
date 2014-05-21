@@ -115,6 +115,6 @@ fi
 configure_ssh
 configure_bro
 
-$COWSAY -f dragon "All done here. To Bro, $ vagrant ssh manager"
+$COWSAY -f dragon "All done here. It's Bro time, connect: $ vagrant ssh manager"
 
 exit 0
