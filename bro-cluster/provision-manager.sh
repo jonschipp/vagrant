@@ -1,10 +1,15 @@
 HOME=/home/vagrant
 ROOT=/root
 BROPATH=/usr/local/bro
+COWSAY=/usr/games/cowsay
 
 function die {
-    echo $*
+    $COWSAY -d "$* MooOoOOoo"
     exit 1
+}
+
+function hi {
+    $COWSAY "$*"
 }
 
 function configure_ssh {
@@ -19,6 +24,7 @@ function configure_ssh {
 	mv $HOME/.ssh/id_rsa $ROOT/.ssh/id_rsa
 	chmod 400 $ROOT/.ssh/id_rsa
     fi
+    hi "SSH configuration complete"
 }
 
 function configure_bro {
@@ -36,6 +42,7 @@ function configure_bro {
     if [ ! -f /etc/profile.d/bro.sh ]; then
 	echo 'export PATH=/usr/local/bro/bin:$PATH' | sudo tee -a /etc/profile.d/bro.sh
     fi
+    hi "Bro configuration complete"
 }
 
 function install_dependencies {
@@ -45,18 +52,18 @@ function install_dependencies {
     # Install dependencies
     apt-get update
     apt-get -y install cmake make gcc g++ flex bison \
-    	libpcap-dev libssl-dev python-dev swig zlib1g-dev libmagic-dev
+    	libpcap-dev libssl-dev python-dev swig zlib1g-dev libmagic-dev && hi "Dependencies installed!"
 }
 
 function install_extras {
     # Install extras
-    apt-get -y install git libgeoip-dev gawk sendmail curl tcpreplay
+    apt-get -y install git libgeoip-dev gawk sendmail curl tcpreplay cowsay
     #ipsumdump (no package), libgoogle-perftools-dev
 
     if [ ! -f /usr/share/GeoIP/GeoIPCity.dat ]; then
     	wget --progress=dot:mega http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
     	gunzip GeoLiteCity.dat.gz
-    	mv GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
+    	mv GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat && hi "GeoIP database installed"
     fi
 }
 
@@ -67,14 +74,14 @@ function install_latest_bro {
     	cd bro
     	./configure || die "Configure failed!"
     	make || die "Build failed!"
-    	make install && make install-aux || die "Install failed!"
+    	make install && make install-aux && hi "Bro install successful!" || die "Install failed!"
     fi
 }
 
 function install_bro {
     if [ -d /usr/local/bro ] && [ "$(bro --version 2>&1 | grep -o '[0-9]\.[0-9]')" == "$VERSION" ];
     then
-        echo "Bro already installed"
+        hi "Bro already installed"
         return
     fi
     if [ ! -e bro-${VERSION}.tar.gz ] ; then
@@ -88,8 +95,7 @@ function install_bro {
     cd bro-${VERSION}
     ./configure || die "Configure failed!"
     make || die "Build failed!"
-    make install || die "Install failed!"
-
+    make install && hi "Bro install successful!" || die "Install failed!"
 }
 
 cd $HOME
@@ -108,5 +114,7 @@ fi
 
 configure_ssh
 configure_bro
+
+$COWSAY -f dragon "All done here. To Bro, $ vagrant ssh manager"
 
 exit 0
