@@ -10,7 +10,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/saucy/current/saucy-server-cloudimg-amd64-vagrant-disk1.box"
   config.vm.provision "file", source: "config", destination: "config"
   config.vm.provision "file", source: "nlmon.cfg", destination: "nlmon.cfg"
-  config.vm.provision "shell", path: "provision.sh"
+  config.vm.provision "shell", path: "provision.sh", privileged: "true", args: "1"
 
   # 1.) Will not work after provision script is ran because of new kernel lacking guest additions
   # config.vm.network "forwarded_port", guest: 80, host: 8080
