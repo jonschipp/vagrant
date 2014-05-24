@@ -137,6 +137,8 @@ fi
     hi "Everything ran! Time for a reboot"
 }
 
+logo
+
 if ! which netsniff-ng 2>&1 > /dev/null; then
 	install_dependencies
 	install_netsniff-ng
@@ -150,5 +152,4 @@ fi
 
 #install_bpf_tools
 system_configuration
-logo
 reboot
