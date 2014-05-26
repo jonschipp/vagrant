@@ -52,7 +52,7 @@ function install_dependencies {
       zlib1g-dev libcli-dev libnet1-dev
 
     # Perf tools
-    apt-get -y install libaudit-dev libelf-dev libgtk2.0-dev \
+    apt-get -y install libaudit-dev libelf-dev libgtk2.0-dev libunwind8-dev \
     	libnuma-dev libslang2-dev libdw-dev binutils-dev asciidoc xmlto
 
     hi "Dependencies installed!"
@@ -60,6 +60,7 @@ function install_dependencies {
 
 
 function install_netsniff-ng {
+   cd $HOME
    # Compile latest Netsniff-NG
    if [ ! -d $HOME/netsniff-ng ]
    then
@@ -86,25 +87,27 @@ function install_helper_tools {
 }
 
 function install_linux_kernel {
-if [ ! -d $KERNEL ]
-then
-    # Download, compile, and install latest stable kernel
-    wget --progress=dot:mega -O - $LATEST_STABLE_KERNEL_URL | tar -xJ
-    if [ $? -ne 0 ]; then die "Failed to download and decompress the linux kernel"; fi
-    cd $KERNEL
-    #mv config $KERNEL/.config
-    make config
-    make -j 4 || die "Failed to build kernel!"
-    make -j 4 modules || die "Failed to build kernel modules!"
-    make modules_install || die "Failed to install kernel modules!"
-    make install || die "Failed to install kernel!"
-    $COWSAY -f tux "Linux kernel $KERNEL installed!"
-fi
+    cd $HOME
+
+    if [ ! -d $KERNEL ]
+    then
+        # Download, compile, and install latest stable kernel
+        wget --progress=dot:mega -O - $LATEST_STABLE_KERNEL_URL | tar -xJ
+        if [ $? -ne 0 ]; then die "Failed to download and decompress the linux kernel"; fi
+        cd $KERNEL
+        #mv config $KERNEL/.config
+        make config
+        make -j 4 || die "Failed to build kernel!"
+        make -j 4 modules || die "Failed to build kernel modules!"
+        make modules_install || die "Failed to install kernel modules!"
+        make install || die "Failed to install kernel!"
+        $COWSAY -f tux "Linux kernel $KERNEL installed!"
+    fi
 }
 
 function install_bpf_tools {
     # Compile and install bpf debugging programs
-    cd $KERNEL/tools/net
+    cd $HOME/$KERNEL/tools/net
     if ! which bpf_asm 2>&1 > /dev/null; then
         make bpf_asm && BPF=1
     fi
@@ -114,16 +117,20 @@ function install_bpf_tools {
     if ! which bpf_jit_disasm 2>&1 > /dev/null; then
         make bpf_jit_disasm && BPF=1
     fi
-    test $BPF -eq 1 && make install
+    test $BPF -eq 1 && make install && hi "BPF Helper Tools Installed!"
 }
 
-# Compile and install perf tools
-#cd linux-3.12.4/tools/perf
-#make
-#make install
-#ln -s /root/bin/perf /usr/sbin/perf
+function install_perf_tools {
+    # Compile and install perf tools
+    if [ ! -e /usr/sbin/perf ]; then
+        cd $HOME/$KERNEL/tools/perf
+        make && make install && hi "Perf tools installed!" || die "Perf tools failed to install!"
+        ln -s $HOME/bin/perf /usr/sbin/perf
+    fi
+}
 
 function system_configuration {
+    cd $HOME
     # System and network configuration
     if [ -e $HOME/nlmon.cfg ]; then
     	mv $HOME/nlmon.cfg /etc/network/interfaces.d/nlmon.cfg
@@ -150,6 +157,7 @@ if [ "$CURRENT" != "$KERNEL" ] && [ $UPDATE -eq 1 ]; then
 	install_linux_kernel
 fi
 
-#install_bpf_tools
+install_bpf_tools
+install_perf_tools
 system_configuration
 reboot
