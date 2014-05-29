@@ -111,7 +111,7 @@ function install_bpf_tools {
     if ! which bpf_asm 2>&1 > /dev/null; then
         make bpf_asm && BPF=1
     fi
-    if ! which bpf_asm 2>&1 > /dev/null; then
+    if ! which bpf_dbg 2>&1 > /dev/null; then
         make bpf_dbg && BPF=1
     fi
     if ! which bpf_jit_disasm 2>&1 > /dev/null; then
