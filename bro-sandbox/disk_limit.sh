@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Kill containers which grow above 1GB
-CONTAINERS=$(docker ps -s | grep GB | awk '{ print $1 }')
+CONTAINERS=$(docker ps -s | awk 'BEGIN { FS="[ ]{3,}" } $8 ~ / [GT]B/ { print $1 }')
 if [ ! -z "$CONTAINERS" ]
 then
         for ID in $CONTAINERS
