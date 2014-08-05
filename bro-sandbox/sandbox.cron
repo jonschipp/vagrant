@@ -1,0 +1,7 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m h dom mon dow user  command
+* *     * * *   root    /usr/local/bin/sandbox_disk_limit
+* *     * * *   root    /usr/local/bin/sandbox_remove_old_containers
+* *     * * *   root    /usr/local/bin/sandbox_remove_old_users
