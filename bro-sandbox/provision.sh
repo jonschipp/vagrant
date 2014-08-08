@@ -1,32 +1,168 @@
 #!/bin/bash
-apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
-sh -c "echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
-apt-get update
-apt-get -y install lxc-docker expect
+HOME=/home/vagrant
+COWSAY=/usr/games/cowsay
+IRCSAY=/usr/local/bin/ircsay
+IRC_CHAN="#replace_me"
+HOST=$(hostname -s)
+LOGFILE=/root/bro-sandbox_install.log
+DST=/usr/local/bin
+EMAIL=jonschipp@gmail.com
 
-docker build -t sandbox - < Dockerfile
-#docker commit $(docker ps -a -q | head -n 1) sandbox
+exec > >(tee -a "$LOGFILE") 2>&1
+echo -e "\n --> Logging stdout & stderr to $LOGFILE"
 
-cat > /usr/local/bin/sandbox <<EOF
-#!/bin/sh
-exec sudo docker run -t -h bro -c 1 -m 100m -i --rm=true sandbox /bin/bash -c 'su - demo'
+cd $HOME
+
+function die {
+    if [ -f ${COWSAY:-none} ]; then
+        $COWSAY -d "$*"
+    else
+        echo "$*"
+    fi
+    if [ -f $IRCSAY ]; then
+        ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
+    fi
+    echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+    exit 1
+}
+
+function hi {
+    if [ -f ${COWSAY:-none} ]; then
+        $COWSAY "$*"
+    else
+        echo "$*"
+    fi
+    if [ -f $IRCSAY ]; then
+        ( set +e; $IRCSAY "#ncsabot" "$*" 2>/dev/null || true ) 
+    fi
+    echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+}
+
+function logo {
+cat <<"EOF"
+===========================================
+
+		Bro
+	    -----------
+	  /             \
+	 |  (   (0)   )  |
+	 |            // |
+	  \     <====// /
+	    -----------
+
+	Web: http://bro.org
+
+===========================================
+
 EOF
+}
 
+function install_docker() {
+local ORDER=$1
+echo -e "$ORDER Installing Docker!\n"
+
+# Check that HTTPS transport is available to APT
+if [ ! -e /usr/lib/apt/methods/https ]; then
+	apt-get update
+	apt-get install -y apt-transport-https
+fi
+
+# Add the repository to your APT sources
+# Then import the repository key
+if [ ! -e /etc/apt/sources.list.d/docker.list ]
+then
+	echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
+	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
+fi
+
+# Install docker
+if ! command -v docker >/dev/null 2>&1
+then
+	apt-get update ; apt-get install -y lxc-docker
+fi
+}
+
+function user_configuration() {
+local ORDER=$1
+echo -e "$ORDER Configuring the demo user account!\n"
+
+if [ ! -e /etc/sudoers.d/sandbox ]; then
 cat > /etc/sudoers.d/sandbox <<EOF
 Cmnd_Alias SANDBOX = /usr/bin/docker
 demo ALL=(root) NOPASSWD: SANDBOX
 EOF
+chmod 0440 /etc/sudoers.d/sandbox && chown root:root /etc/sudoers.d/sandbox
+fi
 
-chmod 0440 /etc/sudoers.d/sandbox
-chmod a+x /usr/local/bin/sandbox
-sh -c 'echo /usr/local/bin/sandbox >> /etc/shells'
-adduser --disabled-login --gecos "" --shell /usr/local/bin/sandbox demo
+if ! grep -q sandbox /etc/shells
+then
+	sh -c 'echo /usr/local/bin/sandbox_shell >> /etc/shells'
+fi
 
-/usr/bin/expect <<EOF
-spawn /usr/bin/passwd demo
-expect "password:"
-send "demo\n"
-expect "password:"
-send "demo\n"
-expect eof
-EOF
+if ! getent passwd demo 1>/dev/null
+then
+	adduser --disabled-login --gecos "" --shell $DST/sandbox_shell demo
+	sed -i '/demo/s/:!:/:$6$CivABH1p$GU\/U7opFS0T31c.6xBRH98rc6c6yg9jiC5adKjWo1XJHT3r.25ySF5E5ajwgwZlSk6OouLfIAjwIbtluf40ft\/:/' /etc/shadow
+fi
+
+}
+
+function system_configuration() {
+local ORDER=$1
+echo -e "$ORDER Configuring the system for use!\n"
+
+if [ -e $HOME/sandbox_shell ]; then
+	mv $HOME/sandbox_shell $DST/sandbox_shell
+	chmod 755 $DST/sandbox_shell && chown root:root $DST/sandbox_shell
+fi
+
+if [ -e $HOME/sandbox_login ]; then
+	mv $HOME/sandbox_login $DST/sandbox_login
+	chmod 755 $DST/sandbox_login && chown root:root $DST/sandbox_login
+fi
+
+if [ -e $HOME/sandbox.cron ]; then
+	mv $HOME/sandbox.cron /etc/cron.d/sandbox
+	chmod 644 /etc/cron.d/sandbox && chown root:root /etc/cron.d/sandbox
+fi
+}
+
+function container_scripts(){
+local ORDER=$1
+echo -e "$ORDER Installing container maintainence scripts!\n"
+
+for FILE in disk_limit remove_old_containers remove_old_users
+do
+	if [ -e $HOME/$FILE ]; then
+		mv $HOME/$FILE $DST/sandbox_${FILE}
+		chmod 750 $DST/sandbox_${FILE} && chown root:root $DST/sandbox_${FILE}
+	fi
+done
+}
+
+function docker_configuration() {
+local ORDER=$1
+echo -e "$ORDER Installing the Bro Sandbox Docker image!\n"
+
+if ! docker images | grep -q jonschipp/latest-bro-sandbox
+then
+	docker pull jonschipp/latest-bro-sandbox
+	#docker build -t sandbox - < Dockerfile
+	#docker commit $(docker ps -a -q | head -n 1) sandbox
+fi
+
+if [ ! -d /exercises ]
+then
+	mkdir /exercises
+fi
+}
+
+logo
+
+install_docker "1.)"
+user_configuration "2.)"
+system_configuration "3.)"
+container_scripts "4.)"
+docker_configuration "5.)"
+
+echo "Try it out: ssh://demo:demo@10.0.2.15"
