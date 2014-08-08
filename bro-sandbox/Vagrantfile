@@ -8,8 +8,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "saucy"
   config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/saucy/current/saucy-server-cloudimg-amd64-vagrant-disk1.box"
-  config.vm.provision "file", source: "Dockerfile", destination: "Dockerfile"
-  config.vm.provision "shell", path: "provision.sh"
+  config.vm.provision "file",  source: "sandbox.cron",                  destination: "sandbox.cron"
+  config.vm.provision "file",  source: "scripts/sandbox_login", 	destination: "sandbox_login"
+  config.vm.provision "file",  source: "scripts/sandbox_shell",         destination: "sandbox_shell"
+  config.vm.provision "file",  source: "scripts/disk_limit",            destination: "disk_limit"
+  config.vm.provision "file",  source: "scripts/remove_old_containers", destination: "remove_old_containers"
+  config.vm.provision "file",  source: "scripts/remove_old_users",      destination: "remove_old_users"
+  config.vm.provision "shell", path:   "provision.sh"
 
   # config.vm.network "forwarded_port", guest: 80, host: 8080
 
@@ -18,8 +23,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    config.vm.provider "virtualbox" do |vb|
   #   vb.gui = true
       vb.name = "bro-sandbox"
-      vb.customize ["modifyvm", :id, "--memory", "2048"]
-      vb.customize ["modifyvm", :id, "--cpus", 3]
+      vb.customize ["modifyvm", :id, "--memory", "1024"]
+      vb.customize ["modifyvm", :id, "--cpus", 1]
    end
 
 end
