@@ -150,7 +150,7 @@ function try_again {
 
 function start_container {
         message "Enjoy yourself!"
-        exec sudo docker run --name="brolive.${USERNAME}" -t -h bro -c 1 -m 256m --net none --dns 127.0.0.1 -v /exercises:/exercises:ro -i sandbox /bin/bash -c 'su - demo' 2>/dev/null
+        exec sudo docker run --name="brolive.${USERNAME}" -t -h bro -c 1 -m 256m --net none --dns 127.0.0.1 -v /exercises:/exercises:ro -i jonschipp/latest-bro-sandbox /bin/bash -c 'su - demo' 2>/dev/null
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
