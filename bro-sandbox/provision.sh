@@ -142,7 +142,17 @@ done
 
 function docker_configuration() {
 local ORDER=$1
+local DEFAULT=/etc/default/docker
 echo -e "$ORDER Installing the Bro Sandbox Docker image!\n"
+
+if ! grep -q devicemapper $DEFAULT
+then
+	mv $HOME/etc.default.docker $DEFAULT
+	chmod 644 $DEFAULT && chown root:root $DEFAULT
+	rm -rf /var/lib/docker/
+	mkdir -p /var/lib/docker/devicemapper/devicemapper
+	restart docker
+fi
 
 if ! docker images | grep -q jonschipp/latest-bro-sandbox
 then

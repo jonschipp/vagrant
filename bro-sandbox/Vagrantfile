@@ -9,6 +9,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "saucy"
   config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/saucy/current/saucy-server-cloudimg-amd64-vagrant-disk1.box"
   config.vm.provision "file",  source: "sandbox.cron",                  destination: "sandbox.cron"
+  config.vm.provision "file",  source: "etc.default.docker",            destination: "etc.default.docker"
   config.vm.provision "file",  source: "scripts/sandbox_login", 	destination: "sandbox_login"
   config.vm.provision "file",  source: "scripts/sandbox_shell",         destination: "sandbox_shell"
   config.vm.provision "file",  source: "scripts/disk_limit",            destination: "disk_limit"
