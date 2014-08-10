@@ -165,4 +165,4 @@ system_configuration "3.)"
 container_scripts "4.)"
 docker_configuration "5.)"
 
-echo "Try it out: ssh://demo:demo@10.0.2.15"
+echo "Try it out: ssh -p 2222 demo@127.0.0.1 -o UserKnownHostsFile=/dev/null"
