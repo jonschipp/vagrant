@@ -33,7 +33,7 @@ function hi {
         echo "$*"
     fi
     if [ -f $IRCSAY ]; then
-        ( set +e; $IRCSAY "#ncsabot" "$*" 2>/dev/null || true ) 
+        ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
     fi
     echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
 }
