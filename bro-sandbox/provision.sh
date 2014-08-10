@@ -151,7 +151,9 @@ then
 	chmod 644 $DEFAULT && chown root:root $DEFAULT
 	rm -rf /var/lib/docker/
 	mkdir -p /var/lib/docker/devicemapper/devicemapper
-	restart docker
+	stop docker
+	start docker
+	sleep 10
 fi
 
 if ! docker images | grep -q jonschipp/latest-bro-sandbox
