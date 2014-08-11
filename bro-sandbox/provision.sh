@@ -16,6 +16,11 @@ EMAIL=jonschipp@gmail.com
 exec > >(tee -a "$LOGFILE") 2>&1
 echo -e "\n --> Logging stdout & stderr to $LOGFILE"
 
+if [ $UID -ne 0 ]; then
+	echo "Script must be run as root user, exiting..."a
+	exit 1
+fi
+
 cd $HOME
 
 function die {
