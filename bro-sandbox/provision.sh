@@ -1,5 +1,10 @@
 #!/bin/bash
-HOME=/home/vagrant
+VAGRANT=/home/vagrant
+if [ -d $VAGRANT ]; then
+	HOME=/home/vagrant
+else
+	HOME=/root
+fi
 COWSAY=/usr/games/cowsay
 IRCSAY=/usr/local/bin/ircsay
 IRC_CHAN="#replace_me"
@@ -206,4 +211,8 @@ system_configuration "3.)"
 container_scripts "4.)"
 docker_configuration "5.)"
 
-echo "Try it out: ssh -p 2222 demo@127.0.0.1 -o UserKnownHostsFile=/dev/null"
+if [ -d $VAGRANT ]; then
+        echo "Try it out: ssh -p 2222 demo@127.0.0.1 -o UserKnownHostsFile=/dev/null"
+else
+        echo "Try it out: ssh demo@<ip> -o UserKnownHostsFile=/dev/null"
+fi
