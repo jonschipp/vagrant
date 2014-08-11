@@ -67,6 +67,35 @@ cat <<"EOF"
 EOF
 }
 
+no_vagrant_setup() {
+local COUNT=0
+local SUCCESS=0
+FILES="
+https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/etc.default.docker
+https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/sandbox.cron
+https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/remove_old_containers
+https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/remove_old_users
+https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/disk_limit
+https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/sandbox_login
+https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/sandbox_shell
+"
+
+echo -e "Downloading required configuration files!\n"
+
+for url in $FILES
+do
+	COUNT=$((COUNT+1))
+	wget $url 2>/dev/null
+	if [ $? -ne 0 ]; then
+		echo "$COUNT - Download for $url failed!"
+	else
+		echo "$COUNT - Success! for $url"
+		SUCCESS=$((SUCCESS+1))
+	fi
+done
+echo
+}
+
 function install_docker() {
 local ORDER=$1
 echo -e "$ORDER Installing Docker!\n"
@@ -213,6 +242,10 @@ fi
 }
 
 logo
+
+if [ ! -d $HOME ]; then
+	no_vagrant_setup
+fi
 
 install_docker "1.)"
 user_configuration "2.)"
