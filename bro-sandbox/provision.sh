@@ -232,7 +232,7 @@ then
 	# https://github.com/docker/docker/issues/6325
 	if ! grep -q devicemapper $DEFAULT
 	then
-		echo "Using devicemapper as storage backend"
+		echo " --> Using devicemapper as storage backend"
 		stop docker
 		sleep 10
 		mv $HOME/etc.default.docker $DEFAULT
