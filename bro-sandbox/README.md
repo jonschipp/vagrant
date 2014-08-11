@@ -3,12 +3,12 @@ Bro-Sandbox
 
 ````
 $ vagrant up
-```
+````
 
 will provision a machine which uses Linux Containers (LXC) via Docker containing Bro.
 When a user ssh's to the demo account on the machine they're placed in a contained Linux environment.
-The container lives and is re-attachable for the duration of an event (def: 3 days). The number of
-can be customized by modifying the numbers in /etc/cron.d/sandbox.
+The container lives and is re-attachable for the duration of an event (def: 3 days). The number of days
+can be customized by modifying the arguments to scripts executed by /etc/cron.d/sandbox.
 
 I wrote my own account manager (sandbox.login) to handle the creation of user containers
 which can be re-attached to in the event of a disconnect, lunch break, etc.
@@ -23,3 +23,4 @@ demo
 ```
 
 This is a demonstration of using Linux Containers to sandbox applications for the purpose of training.
+[More Information] (https://registry.hub.docker.com/u/jonschipp/latest-bro-sandbox/)
