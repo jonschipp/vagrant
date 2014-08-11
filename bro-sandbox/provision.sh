@@ -1,4 +1,6 @@
 #!/bin/bash
+
+# Global Variables
 VAGRANT=/home/vagrant
 if [ -d $VAGRANT ]; then
 	HOME=/home/vagrant
@@ -13,9 +15,14 @@ LOGFILE=/root/bro-sandbox_install.log
 DST=/usr/local/bin
 EMAIL=jonschipp@gmail.com
 
+# Get Ubuntu distribution information
+source /etc/lsb-release
+
+# Logging
 exec > >(tee -a "$LOGFILE") 2>&1
 echo -e "\n --> Logging stdout & stderr to $LOGFILE"
 
+# Must run as root
 if [ $UID -ne 0 ]; then
 	echo "Script must be run as root user, exiting..."a
 	exit 1
@@ -221,17 +228,24 @@ then
 	sed -i '/limit nproc/s/[0-9]\{1,8\}/524288/g' $UPSTART
 fi
 
-if ! grep -q devicemapper $DEFAULT
+if [[ "$DISTRIB_CODENAME" == "saucy" ]]
 then
-	stop docker
-	mv $HOME/etc.default.docker $DEFAULT
-	chmod 644 $DEFAULT && chown root:root $DEFAULT
-	rm -rf /var/lib/docker/
-	mkdir -p /var/lib/docker/devicemapper/devicemapper
-	start docker
-	sleep 10
+	# Devicemapper allows us to limit container sizes for security
+	# https://github.com/docker/docker/tree/master/daemon/graphdriver/devmapper
+	# Doesn't work in Ubuntu Trusty or Precise currently
+	# https://github.com/docker/docker/issues/6325
+	if ! grep -q devicemapper $DEFAULT
+	then
+		echo "Using devicemapper as storage backend"
+		stop docker
+		mv $HOME/etc.default.docker $DEFAULT
+		chmod 644 $DEFAULT && chown root:root $DEFAULT
+		rm -rf /var/lib/docker/
+		mkdir -p /var/lib/docker/devicemapper/devicemapper
+		start docker
+		sleep 10
+	fi
 fi
-
 
 if ! docker images | grep -q jonschipp/latest-bro-sandbox
 then
@@ -248,6 +262,7 @@ fi
 
 logo
 
+# Run if not using Vagrant (We have to get the files another way)
 if [ ! -d $VAGRANT ]; then
 	no_vagrant_setup
 fi
