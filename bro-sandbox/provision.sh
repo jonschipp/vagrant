@@ -162,7 +162,7 @@ fi
 
 if ! grep -q "limit nproc 524288 524288" $UPSTART
 then
-	sed '/limit nproc/s/[0-9]\{1,8\}/524288/g' $UPSTART
+	sed -i '/limit nproc/s/[0-9]\{1,8\}/524288/g' $UPSTART
 fi
 
 if ! grep -q devicemapper $DEFAULT
