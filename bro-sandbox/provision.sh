@@ -238,6 +238,7 @@ then
 	then
 		echo "Using devicemapper as storage backend"
 		stop docker
+		sleep 10
 		mv $HOME/etc.default.docker $DEFAULT
 		chmod 644 $DEFAULT && chown root:root $DEFAULT
 		rm -rf /var/lib/docker/
