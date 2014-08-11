@@ -84,6 +84,7 @@ fi
 
 function user_configuration() {
 local ORDER=$1
+local SSH_CONFIG=/etc/ssh/sshd_config 
 echo -e "$ORDER Configuring the demo user account!\n"
 
 if [ ! -e /etc/sudoers.d/sandbox ]; then
@@ -103,6 +104,12 @@ if ! getent passwd demo 1>/dev/null
 then
 	adduser --disabled-login --gecos "" --shell $DST/sandbox_shell demo
 	sed -i '/demo/s/:!:/:$6$CivABH1p$GU\/U7opFS0T31c.6xBRH98rc6c6yg9jiC5adKjWo1XJHT3r.25ySF5E5ajwgwZlSk6OouLfIAjwIbtluf40ft\/:/' /etc/shadow
+fi
+
+if grep -q "PasswordAuthentication no" $SSH_CONFIG
+then
+	sed -i '/PasswordAuthentication/s/no/yes/' $SSH_CONFIG
+	restart ssh
 fi
 
 }
@@ -143,7 +150,20 @@ done
 function docker_configuration() {
 local ORDER=$1
 local DEFAULT=/etc/default/docker
+local UPSTART=/etc/init/docker.conf
+
 echo -e "$ORDER Installing the Bro Sandbox Docker image!\n"
+
+
+if ! grep -q "limit fsize" $UPSTART
+then
+	sed -i '/limit nproc/a limit fsize 500000000 500000000' $UPSTART
+fi
+
+if ! grep -q "limit nproc 524288 524288" $UPSTART
+then
+	sed '/limit nproc/s/[0-9]\{1,8\}/524288/g' $UPSTART
+fi
 
 if ! grep -q devicemapper $DEFAULT
 then
@@ -151,10 +171,10 @@ then
 	chmod 644 $DEFAULT && chown root:root $DEFAULT
 	rm -rf /var/lib/docker/
 	mkdir -p /var/lib/docker/devicemapper/devicemapper
-	stop docker
-	start docker
+	restart docker
 	sleep 10
 fi
+
 
 if ! docker images | grep -q jonschipp/latest-bro-sandbox
 then
