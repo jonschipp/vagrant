@@ -224,7 +224,7 @@ then
 	sed -i '/limit nproc/s/[0-9]\{1,8\}/524288/g' $UPSTART
 fi
 
-if [[ "$DISTRIB_CODENAME" == "saucy" ]]
+if [[ "$DISTRIB_CODENAME" == "saucy" || "$DISTRIB_CODENAME" == "trusty" ]]
 then
 	# Devicemapper allows us to limit container sizes for security
 	# https://github.com/docker/docker/tree/master/daemon/graphdriver/devmapper
@@ -232,15 +232,13 @@ then
 	# https://github.com/docker/docker/issues/6325
 	if ! grep -q devicemapper $DEFAULT
 	then
-		echo " --> Using devicemapper as storage backend"
-		stop docker
-		sleep 10
+		echo -e " --> Using devicemapper as storage backend\n"
 		mv $HOME/etc.default.docker $DEFAULT
 		chmod 644 $DEFAULT && chown root:root $DEFAULT
 		rm -rf /var/lib/docker/
 		mkdir -p /var/lib/docker/devicemapper/devicemapper
-		start docker
-		sleep 10
+		restart docker
+		sleep 5
 	fi
 fi
 
