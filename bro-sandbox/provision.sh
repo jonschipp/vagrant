@@ -153,8 +153,8 @@ Match User demo
 EOF
 
 	restart ssh
+	echo
 fi
-
 }
 
 function system_configuration() {
