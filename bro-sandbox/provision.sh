@@ -116,6 +116,7 @@ fi
 
 function system_configuration() {
 local ORDER=$1
+local LIMITS=/etc/security/limits.d
 echo -e "$ORDER Configuring the system for use!\n"
 
 if [ -e $HOME/sandbox_shell ]; then
@@ -131,6 +132,14 @@ fi
 if [ -e $HOME/sandbox.cron ]; then
 	mv $HOME/sandbox.cron /etc/cron.d/sandbox
 	chmod 644 /etc/cron.d/sandbox && chown root:root /etc/cron.d/sandbox
+fi
+
+if [ ! -e $LIMITS/fsize.conf ]; then
+	echo "*                hard    fsize           1000000" > $LIMITS/fsize.conf
+fi
+
+if [ ! -e $LIMITS/nproc.conf ]; then
+	echo "*                hard    nproc           10000" > $LIMITS/nproc.conf
 fi
 }
 
