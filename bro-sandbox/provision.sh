@@ -156,13 +156,9 @@ then
 	sed -i '/demo/s/:!:/:$6$CivABH1p$GU\/U7opFS0T31c.6xBRH98rc6c6yg9jiC5adKjWo1XJHT3r.25ySF5E5ajwgwZlSk6OouLfIAjwIbtluf40ft\/:/' /etc/shadow
 fi
 
-if ! grep -q "Match User demo" $SSH_CONFIG
+if grep -q "PasswordAuthentication no" $SSH_CONFIG
 then
-cat <<"EOF" >> $SSH_CONFIG
-Match User demo
-	PasswordAuthentication yes
-EOF
-
+	echo -e "\nMatch User demo\n\tPasswordAuthentication yes\n" >> $SSH_CONFIG
 	restart ssh
 	echo
 fi
