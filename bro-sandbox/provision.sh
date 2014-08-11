@@ -243,7 +243,7 @@ fi
 
 logo
 
-if [ ! -d $HOME ]; then
+if [ ! -d $VAGRANT ]; then
 	no_vagrant_setup
 fi
 
