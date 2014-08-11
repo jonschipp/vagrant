@@ -22,5 +22,6 @@ The password for the demo user is:
 demo
 ```
 
-This is a demonstration of using Linux Containers to sandbox applications for the purpose of training. <br>
+This is a demonstration of using Linux Containers to sandbox applications for the purpose of training.
+The production instance of this idea is called Bro Live! It will be released at BroCon '14 <br> 
 [More Information] (https://registry.hub.docker.com/u/jonschipp/latest-bro-sandbox/)
