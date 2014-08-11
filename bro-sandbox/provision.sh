@@ -219,11 +219,12 @@ fi
 
 if ! grep -q devicemapper $DEFAULT
 then
+	stop docker
 	mv $HOME/etc.default.docker $DEFAULT
 	chmod 644 $DEFAULT && chown root:root $DEFAULT
 	rm -rf /var/lib/docker/
 	mkdir -p /var/lib/docker/devicemapper/devicemapper
-	restart docker
+	start docker
 	sleep 10
 fi
 
