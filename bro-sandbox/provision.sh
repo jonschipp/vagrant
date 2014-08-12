@@ -79,7 +79,7 @@ EOF
 no_vagrant_setup() {
 local COUNT=0
 local SUCCESS=0
-FILES="
+local FILES="
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/etc.default.docker
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/sandbox.cron
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/remove_old_containers
@@ -250,10 +250,62 @@ then
 	#docker build -t sandbox - < Dockerfile
 	#docker commit $(docker ps -a -q | head -n 1) sandbox
 fi
+}
+
+training_configuration() {
+local COUNT=0
+local SUCCESS=0
+local FILES="
+http://www.bro.org/downloads/archive/bro-2.2.tar.gz
+http://www.bro.org/downloads/archive/bro-2.1.tar.gz
+http://www.bro.org/downloads/archive/bro-2.0.tar.gz
+http://www.bro.org/downloads/archive/bro-1.5.tar.gz
+http://www.bro.org/downloads/archive/bro-1.4.tar.gz
+http://www.bro.org/downloads/archive/bro-1.3.tar.gz
+http://www.bro.org/downloads/archive/bro-1.2.tar.gz
+http://www.bro.org/downloads/archive/bro-1.1.tar.gz
+http://www.bro.org/downloads/archive/bro-1.0.tar.gz
+http://www.bro.org/downloads/archive/bro-0.9-stable.tar.gz
+"
+echo -e "Applying training configuration!\n"
 
 if [ ! -d /exercises ]
 then
 	mkdir /exercises
+fi
+
+if [ ! -d /versions ]
+then
+	mkdir /versions
+	cd /versions
+
+	for url in $FILES
+	do
+		COUNT=$((COUNT+1))
+		wget $url 2>/dev/null
+		if [ $? -ne 0 ]; then
+			echo "$COUNT - Download for $url failed!"
+		else
+			echo "$COUNT - Success! for $url"
+			SUCCESS=$((SUCCESS+1))
+		fi
+done
+
+cat > /versions/README <<EOF
+* Still in development: compilation fails *
+
+This is mostly for fun, to see how Bro has changed over time.
+
+/versions is mounted read-only.
+You must copy a release tarball to your home directory and compile it there to play with it. e.g.
+
+$ cp /versions/bro-2.0.tar.gz ~/
+$ cd bro-2.0
+$ ./configure
+$ make
+$ ./build/src/bro
+
+EOF
 fi
 }
 
@@ -269,7 +321,9 @@ user_configuration "2.)"
 system_configuration "3.)"
 container_scripts "4.)"
 docker_configuration "5.)"
+training_configuration "6.)"
 
+echo
 if [ -d $VAGRANT ]; then
         echo "Try it out: ssh -p 2222 demo@127.0.0.1 -o UserKnownHostsFile=/dev/null"
 else
