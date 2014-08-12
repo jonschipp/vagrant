@@ -1,4 +1,6 @@
 #!/bin/bash
+# Author: Jon Schipp <jonschipp@gmail.com>
+# Written for Ubuntu Saucy and Trusty, should be adaptable to other distros.
 
 # Global Variables
 VAGRANT=/home/vagrant
