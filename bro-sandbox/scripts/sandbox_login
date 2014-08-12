@@ -3,7 +3,8 @@
 # Varables:
 FAILURE_COUNT=0
 TIME=$(date +"%s")
-EXPIRATION=$(date --date=@$((TIME+86400)) +"%c")
+DAYS=3 # Length of the event in days
+EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
 DB=/tmp/sandbox_db
 AVAILABLE_USER=1
 PW_LENGTH=4
@@ -51,7 +52,7 @@ ITEM="$1"
 }
 
 function new_user {
-        echo "A temporary account will be created so that you can resume your session. Account is valid for 24 hours."
+        echo "A temporary account will be created so that you can resume your session. Account is valid for the length of the event."
         echo
 
         until test $AVAILABLE_USER -ne 1
