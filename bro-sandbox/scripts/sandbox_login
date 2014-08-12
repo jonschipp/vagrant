@@ -71,7 +71,7 @@ function new_user {
 }
 
 function existing_user {
-        echo "Your previous account is only valid for 24 hours after that you must create a new account"
+        echo "Your previous account is only valid for the length of the event, after that you must create a new account"
         echo
         while test $FAILURE_COUNT -lt 3 
         do
