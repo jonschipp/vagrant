@@ -80,6 +80,7 @@ no_vagrant_setup() {
 local COUNT=0
 local SUCCESS=0
 local FILES="
+https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/Dockerfile
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/etc.default.docker
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/sandbox.cron
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/remove_old_containers
@@ -246,9 +247,12 @@ fi
 
 if ! docker images | grep -q jonschipp/latest-bro-sandbox
 then
-	docker pull jonschipp/latest-bro-sandbox
-	#docker build -t sandbox - < Dockerfile
-	#docker commit $(docker ps -a -q | head -n 1) sandbox
+	if [ -e $HOME/Dockerfile ]; then
+		docker build -t jonschipp/latest-bro-sandbox - < $HOME/Dockerfile
+	else
+		docker pull jonschipp/latest-bro-sandbox
+	fi
+	#docker commit $(docker ps -a -q | head -n 1) jonschipp/latest-bro-sandbox
 fi
 }
 
