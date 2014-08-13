@@ -1,6 +1,6 @@
 # Bro Sandbox - Bro Upstream Latest
 #
-# VERSION               0.0.1
+# VERSION               1.0.0
 FROM      ubuntu
 MAINTAINER Jon Schipp <jonschipp@gmail.com>
 RUN apt-get update
