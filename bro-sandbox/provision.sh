@@ -138,6 +138,7 @@ fi
 function user_configuration() {
 local ORDER=$1
 local SSH_CONFIG=/etc/ssh/sshd_config 
+local RESTART_SSH=0
 echo -e "$ORDER Configuring the demo user account!\n"
 
 if [ ! -e /etc/sudoers.d/sandbox ]; then
@@ -162,6 +163,17 @@ fi
 if grep -q "PasswordAuthentication no" $SSH_CONFIG
 then
 	echo -e "\nMatch User demo\n\tPasswordAuthentication yes\n" >> $SSH_CONFIG
+	RESTART_SSH=1
+fi
+
+if ! grep -q '^#Subsystem sftp' $SSH_CONFIG
+then
+	sed -i '/^Subsystem sftp/s/^/#/' $SSH_CONFIG
+	RESTART_SSH=1
+fi
+
+if [ $RESTART_SSH -eq 1 ]
+then
 	restart ssh
 	echo
 fi
