@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "centos"
+  config.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box"
+  config.vm.provision "shell", path: "provision.sh"
+
+  # 1.) Will not work after provision script is ran because of new kernel lacking guest additions
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+  # config.vm.synced_folder ".", "/vagrant"
+  # 2.) Will work becuase guest additions isn't a requirement
+  # config.vm.synced_folder ".", "/vagrant", type: "rsync",
+  # rsync__exclude: ".git/"
+  # rsync_auto: "true" # Detect and copy any changes automatically
+
+   config.vm.provider "virtualbox" do |vb|
+      #vb.gui = true
+      vb.name = "netsniff-ng"
+      vb.customize ["modifyvm", :id, "--memory", "4096"]
+      vb.customize ["modifyvm", :id, "--cpus", 4]
+   end
+
+end
