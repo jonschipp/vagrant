@@ -17,7 +17,7 @@ CONTAINERS=$(docker ps -a | grep -v -E 'trybro_data|bro_manager' | \
         $4 ~ /[0-9]+ day|week|month|year/ && count=substr($4,1,2) \
                 { 
                         if ( strtonum(count) > remove ) { 
-                                printf("%s", $1) 
+                                printf("%s ", $1) 
                         }
                 }')
 
@@ -27,6 +27,6 @@ then
         do
                 #echo 'echo "Warning: Container lifetime limit reached. Destroying container..."' | docker attach $ID
                 docker rm $ID
-                logger -t "docker" "remove_old_containers.sh: Container $ID was older than 1 day. Stopped"
+                logger -t "docker" "remove_old_containers.sh: Container $ID was older than $DAYS day. Stopped"
         done
 fi
