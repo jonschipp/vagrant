@@ -325,6 +325,23 @@ EOF
 fi
 }
 
+sample_exercises() {
+local DIR=/exercises
+echo -e "Installing sample exercises!\n"
+cd $DIR
+if [ ! -d $DIR/BroCon14 ]
+then
+	wget http://www.bro.org/static/BroCon14/BroCon14.tar.gz 2>/dev/null
+	if [ $? -ne 0 ]; then
+		echo "$COUNT - Download for $url failed!"
+	else
+		echo "$COUNT - Success! for $url"
+	fi
+	tar zxf BroCon14.tar.gz
+	rm -f BroCon14.tar.gz
+fi
+}
+
 logo
 
 # Run if not using Vagrant (We have to get the files another way)
@@ -338,6 +355,7 @@ system_configuration "3.)"
 container_scripts "4.)"
 docker_configuration "5.)"
 training_configuration "6.)"
+sample_exercises "7.)"
 
 echo
 if [ -d $VAGRANT ]; then
