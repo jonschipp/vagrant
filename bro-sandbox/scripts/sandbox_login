@@ -30,7 +30,7 @@ MESSAGE=$1
 echo
 echo "$1"
 echo "Training materials are located in /exercises."
-echo "e.g. $ bro -C -r /exercises/faf-exercise.pcap"
+echo "e.g. $ bro -r /exercises/BroCon14/beginner/http.pcap"
 echo
 }
 
