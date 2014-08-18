@@ -9,3 +9,6 @@ RUN adduser --disabled-password --gecos "" demo
 RUN su -l -c 'git clone --recursive git://git.bro.org/bro && cd bro && ./configure && make' demo
 RUN cd /home/demo/bro && make install
 RUN echo "PATH=$PATH:/usr/local/bro/bin/" > /etc/profile.d/bro.sh && chmod 555 /etc/profile.d/bro.sh
+# Uncomment if you would like to be able to run BroCtl with sudo (broctl exec can be dangerous)
+#RUN echo "demo ALL=(root) NOPASSWD:/usr/local/bro/bin/broctl" > /etc/sudoers.d/bro
+#RUN chmod 0440 /etc/sudoers.d/bro && chown root:root /etc/sudoers.d/bro
