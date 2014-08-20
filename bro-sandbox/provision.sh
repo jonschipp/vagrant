@@ -160,6 +160,12 @@ then
 	sed -i '/demo/s/:!:/:$6$CivABH1p$GU\/U7opFS0T31c.6xBRH98rc6c6yg9jiC5adKjWo1XJHT3r.25ySF5E5ajwgwZlSk6OouLfIAjwIbtluf40ft\/:/' /etc/shadow
 fi
 
+if ! grep -q "ClientAliveInterval 15" $SSH_CONFIG
+then
+	echo -e "\nClientAliveInterval 15\nClientAliveCountMax 10\n" >> $SSH_CONFIG
+	RESTART_SSH=1
+fi
+
 if grep -q "PasswordAuthentication no" $SSH_CONFIG
 then
 	echo -e "\nMatch User demo\n\tPasswordAuthentication yes\n" >> $SSH_CONFIG
