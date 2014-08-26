@@ -249,8 +249,6 @@ if [[ "$DISTRIB_CODENAME" == "saucy" || "$DISTRIB_CODENAME" == "trusty" ]]
 then
 	# Devicemapper allows us to limit container sizes for security
 	# https://github.com/docker/docker/tree/master/daemon/graphdriver/devmapper
-	# Doesn't work in Ubuntu Trusty or Precise currently
-	# https://github.com/docker/docker/issues/6325
 	if ! grep -q devicemapper $DEFAULT
 	then
 		echo -e " --> Using devicemapper as storage backend\n"
