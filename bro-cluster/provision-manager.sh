@@ -21,8 +21,7 @@ function configure_ssh {
     fi
 
     if [ ! -f $ROOT/.ssh/id_rsa ]; then
-	mv $HOME/.ssh/id_rsa $ROOT/.ssh/id_rsa
-	chmod 400 $ROOT/.ssh/id_rsa
+	install -m 400 $HOME/.ssh/id_rsa $ROOT/.ssh/id_rsa
     fi
     hi "SSH configuration complete"
 }
