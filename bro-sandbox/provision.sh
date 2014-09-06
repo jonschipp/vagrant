@@ -192,18 +192,15 @@ local LIMITS=/etc/security/limits.d
 echo -e "$ORDER Configuring the system for use!\n"
 
 if [ -e $HOME/sandbox_shell ]; then
-	mv $HOME/sandbox_shell $DST/sandbox_shell
-	chmod 755 $DST/sandbox_shell && chown root:root $DST/sandbox_shell
+	install -o root -g root -m 755 $HOME/sandbox_shell $DST/sandbox_shell
 fi
 
 if [ -e $HOME/sandbox_login ]; then
-	mv $HOME/sandbox_login $DST/sandbox_login
-	chmod 755 $DST/sandbox_login && chown root:root $DST/sandbox_login
+	install -o root -g root -m 755 $HOME/sandbox_login $DST/sandbox_login
 fi
 
 if [ -e $HOME/sandbox.cron ]; then
-	mv $HOME/sandbox.cron /etc/cron.d/sandbox
-	chmod 644 /etc/cron.d/sandbox && chown root:root /etc/cron.d/sandbox
+	install -o root -g root -m 644 $HOME/sandbox.cron /etc/cron.d/sandbox
 fi
 
 if [ ! -e $LIMITS/fsize.conf ]; then
@@ -222,8 +219,7 @@ echo -e "$ORDER Installing container maintainence scripts!\n"
 for FILE in disk_limit remove_old_containers remove_old_users
 do
 	if [ -e $HOME/$FILE ]; then
-		mv $HOME/$FILE $DST/sandbox_${FILE}
-		chmod 750 $DST/sandbox_${FILE} && chown root:root $DST/sandbox_${FILE}
+		install -o root -g root -m 750 $HOME/$FILE $DST/sandbox_${FILE}
 	fi
 done
 }
@@ -253,8 +249,7 @@ then
 	if ! grep -q devicemapper $DEFAULT
 	then
 		echo -e " --> Using devicemapper as storage backend\n"
-		mv $HOME/etc.default.docker $DEFAULT
-		chmod 644 $DEFAULT && chown root:root $DEFAULT
+		install -o root -g root -m 644 $HOME/etc.default.docker $DEFAULT
 
 		if [ -d /var/lib/docker ]; then
 			rm -rf /var/lib/docker/
