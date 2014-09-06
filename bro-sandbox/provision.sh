@@ -16,6 +16,7 @@ HOST=$(hostname -s)
 LOGFILE=/root/bro-sandbox_install.log
 DST=/usr/local/bin
 EMAIL=jonschipp@gmail.com
+CONTAINER_DESTINATION= # Put containers on another volume (optional)
 
 # Get Ubuntu distribution information
 source /etc/lsb-release
@@ -254,7 +255,20 @@ then
 		echo -e " --> Using devicemapper as storage backend\n"
 		mv $HOME/etc.default.docker $DEFAULT
 		chmod 644 $DEFAULT && chown root:root $DEFAULT
-		rm -rf /var/lib/docker/
+
+		if [ -d /var/lib/docker ]; then
+			rm -rf /var/lib/docker/
+		fi
+
+		if [ ! -z $CONTAINER_DESTINATION ]; then
+
+                        mount $CONTAINER_DESTINATION /var/lib/docker
+
+			if ! grep -q $CONTAINER_DESTINATION /etc/fstab 2>/dev/null; then
+				echo -e "${CONTAINER_DESTINATION}\t/var/lib/docker\text4\tdefaults,noatime,nodiratime\t0\t1" >> /etc/fstab
+			fi
+                fi
+
 		mkdir -p /var/lib/docker/devicemapper/devicemapper
 		restart docker
 		sleep 5
