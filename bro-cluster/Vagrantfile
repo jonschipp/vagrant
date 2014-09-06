@@ -12,9 +12,7 @@ SCRIPT
 
 $keys = <<SCRIPT
 mkdir /root/.ssh && sudo chown root:root /root/.ssh && sudo chmod 0600 /root/.ssh
-mv /home/vagrant/.ssh/insecure-ssh-key.pub /root/.ssh/authorized_keys
-chmod 400 /root/.ssh/authorized_keys
-chown root:root /root/.ssh/authorized_keys
+install -o root -g root -m 400 /home/vagrant/.ssh/insecure-ssh-key.pub /root/.ssh/authorized_keys
 SCRIPT
 
 Vagrant.configure(2) do |config|
