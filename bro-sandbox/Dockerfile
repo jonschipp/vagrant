@@ -11,6 +11,7 @@ RUN su -l -c 'git clone --recursive git://git.bro.org/bro && cd bro && ./configu
 RUN cd /home/demo/bro && make install
 RUN echo "PATH=$PATH:/usr/local/bro/bin/" > /etc/profile.d/bro.sh && chmod 555 /etc/profile.d/bro.sh
 RUN echo "export TMOUT=1800; readonly TMOUT" > /etc/profile.d/timeout.sh && chmod 555 /etc/profile.d/timeout.sh
+RUN su -l -c 'ln -s /exercises exercises' demo
 # Uncomment if you would like to be able to run BroCtl with sudo (broctl exec can be dangerous)
 #RUN echo "demo ALL=(root) NOPASSWD:/usr/local/bro/bin/broctl" > /etc/sudoers.d/bro
 #RUN chmod 0440 /etc/sudoers.d/bro && chown root:root /etc/sudoers.d/bro
