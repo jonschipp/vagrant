@@ -349,7 +349,7 @@ fi
 sample_exercises() {
 local DIR=/exercises
 echo -e "Installing sample exercises!\n"
-if [ ! -d $DIR ]
+if [ ! -d $DIR ]; then
 	mkdir /exercises
 fi
 
