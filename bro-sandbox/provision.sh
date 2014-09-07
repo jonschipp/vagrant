@@ -169,8 +169,11 @@ fi
 
 if grep -q "PasswordAuthentication no" $SSH_CONFIG
 then
-	echo -e "\nMatch User demo\n\tPasswordAuthentication yes\n" >> $SSH_CONFIG
-	RESTART_SSH=1
+	if ! grep -q "Match User demo" $SSH_CONFIG
+	then
+		echo -e "\nMatch User demo\n\tPasswordAuthentication yes\n" >> $SSH_CONFIG
+		RESTART_SSH=1
+	fi
 fi
 
 if ! grep -q '^#Subsystem sftp' $SSH_CONFIG
