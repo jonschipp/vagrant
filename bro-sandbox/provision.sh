@@ -346,7 +346,12 @@ fi
 sample_exercises() {
 local DIR=/exercises
 echo -e "Installing sample exercises!\n"
+if [ ! -d $DIR ]
+	mkdir /exercises
+fi
+
 cd $DIR
+
 if [ ! -d $DIR/BroCon14 ]
 then
 	wget http://www.bro.org/static/BroCon14/BroCon14.tar.gz 2>/dev/null
