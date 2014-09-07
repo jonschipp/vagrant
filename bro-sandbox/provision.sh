@@ -16,6 +16,7 @@ HOST=$(hostname -s)
 LOGFILE=/root/bro-sandbox_install.log
 DST=/usr/local/bin
 EMAIL=jonschipp@gmail.com
+DOCKER_FILE="Dockerfile-2.3" # Build image from specific Dockerfile. Default builds Bro 2.3.
 CONTAINER_DESTINATION= # Put containers on another volume (optional)
 IMAGE="jonschipp/latest-bro-sandbox" # Assign a different name to the image (optional). Must make same in sandbox scripts
 
@@ -83,6 +84,7 @@ local COUNT=0
 local SUCCESS=0
 local FILES="
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/Dockerfile
+https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/Dockerfile-2.3
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/etc.default.docker
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/sandbox.cron
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/remove_old_containers
@@ -278,8 +280,8 @@ fi
 
 if ! docker images | grep -q $IMAGE
 then
-	if [ -e $HOME/Dockerfile ]; then
-		docker build -t $IMAGE - < $HOME/Dockerfile
+	if [ -e $HOME/$DOCKER_FILE ]; then
+		docker build -t $IMAGE - < $HOME/$DOCKER_FILE
 	else
 		docker pull jonschipp/latest-bro-sandbox
 	fi
