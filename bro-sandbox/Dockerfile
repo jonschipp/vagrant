@@ -9,7 +9,6 @@ RUN apt-get install -y gawk
 RUN adduser --disabled-password --gecos "" demo
 RUN su -l -c 'git clone --recursive git://git.bro.org/bro && cd bro && ./configure && make' demo
 RUN cd /home/demo/bro && make install
-RUN su -l -c 'ln -s /exercises exercises' demo
 RUN echo "PATH=$PATH:/usr/local/bro/bin/" > /etc/profile.d/bro.sh && chmod 555 /etc/profile.d/bro.sh
 RUN echo "export TMOUT=1800; readonly TMOUT" > /etc/profile.d/timeout.sh && chmod 555 /etc/profile.d/timeout.sh
 # Uncomment if you would like to be able to run BroCtl with sudo (broctl exec can be dangerous)
