@@ -378,7 +378,7 @@ user_configuration "2.)"
 system_configuration "3.)"
 container_scripts "4.)"
 docker_configuration "5.)"
-training_configuration "6.)"
+#training_configuration "6.)"
 sample_exercises "7.)"
 
 echo
