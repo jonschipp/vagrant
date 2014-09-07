@@ -17,6 +17,7 @@ LOGFILE=/root/bro-sandbox_install.log
 DST=/usr/local/bin
 EMAIL=jonschipp@gmail.com
 CONTAINER_DESTINATION= # Put containers on another volume (optional)
+IMAGE="jonschipp/latest-bro-sandbox" # Assign a different name to the image (optional). Must make same in sandbox scripts
 
 # Get Ubuntu distribution information
 source /etc/lsb-release
@@ -275,10 +276,10 @@ then
 	fi
 fi
 
-if ! docker images | grep -q jonschipp/latest-bro-sandbox
+if ! docker images | grep -q $IMAGE
 then
 	if [ -e $HOME/Dockerfile ]; then
-		docker build -t jonschipp/latest-bro-sandbox - < $HOME/Dockerfile
+		docker build -t $IMAGE - < $HOME/Dockerfile
 	else
 		docker pull jonschipp/latest-bro-sandbox
 	fi
