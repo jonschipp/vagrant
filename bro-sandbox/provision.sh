@@ -260,7 +260,9 @@ then
 
 		if [ ! -z $CONTAINER_DESTINATION ]; then
 
-                        mount $CONTAINER_DESTINATION /var/lib/docker
+			if ! mount | grep -q $CONTAINER_DESTINATION ; then
+				mount $CONTAINER_DESTINATION /var/lib/docker
+			fi
 
 			if ! grep -q $CONTAINER_DESTINATION /etc/fstab 2>/dev/null; then
 				echo -e "${CONTAINER_DESTINATION}\t/var/lib/docker\text4\tdefaults,noatime,nodiratime\t0\t1" >> /etc/fstab
