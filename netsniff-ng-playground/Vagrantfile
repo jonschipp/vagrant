@@ -22,6 +22,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     send.vm.network "private_network", ip: "10.0.0.10", :netmask => "255.255.255.0", :adapter => 2
     send.vm.provision "file", source: "config", destination: "config"
     send.vm.provision "file", source: "nlmon.cfg", destination: "nlmon.cfg"
+    # Argument: 1 to install latest Linux kernel (slow), 0 to use supplied kernel
     send.vm.provision "shell", path: "provision.sh", privileged: "true", args: "1"
     send.vm.provider "virtualbox" do |vm1|
       vm1.name = "netsniff-ng-send"
@@ -36,6 +37,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     recv.vm.network "private_network", ip: "10.0.0.20", :netmask => "255.255.255.0", :adapter => 2
     recv.vm.provision "file", source: "config", destination: "config"
     recv.vm.provision "file", source: "nlmon.cfg", destination: "nlmon.cfg"
+    # Argument: 1 to install latest Linux kernel (slow), 0 to use supplied kernel
     recv.vm.provision "shell", path: "provision.sh", privileged: "true", args: "1"
     recv.vm.provider "virtualbox" do |vm2|
       vm2.name = "netsniff-ng-recv"
