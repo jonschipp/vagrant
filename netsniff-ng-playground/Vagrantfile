@@ -1,0 +1,48 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "trusty"
+  config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+
+  # 1.) Will not work after provision script is ran because of new kernel lacking guest additions
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+  # config.vm.synced_folder ".", "/vagrant"
+  # 2.) Will work becuase guest additions isn't a requirement
+  # config.vm.synced_folder ".", "/vagrant", type: "rsync",
+  # rsync__exclude: ".git/"
+  # rsync_auto: "true" # Detect and copy any changes automatically
+
+  config.vm.define "send" do |send|
+    send.vm.hostname = "netsniff-ng-send"
+    send.vm.network "private_network", ip: "10.0.0.10", :netmask => "255.255.255.0", :adapter => 2
+    send.vm.provision "file", source: "config", destination: "config"
+    send.vm.provision "file", source: "nlmon.cfg", destination: "nlmon.cfg"
+    send.vm.provision "shell", path: "provision.sh", privileged: "true", args: "1"
+    send.vm.provider "virtualbox" do |vm1|
+      vm1.name = "netsniff-ng-send"
+      vm1.customize ["modifyvm", :id, "--memory", "4096"]
+      vm1.customize ["modifyvm", :id, "--cpus", 4]
+      vm1.gui = false
+    end
+  end
+
+  config.vm.define "recv" do |recv|
+    recv.vm.hostname = "recv"
+    recv.vm.network "private_network", ip: "10.0.0.20", :netmask => "255.255.255.0", :adapter => 2
+    recv.vm.provision "file", source: "config", destination: "config"
+    recv.vm.provision "file", source: "nlmon.cfg", destination: "nlmon.cfg"
+    recv.vm.provision "shell", path: "provision.sh", privileged: "true", args: "1"
+    recv.vm.provider "virtualbox" do |vm2|
+      vm2.name = "netsniff-ng-recv"
+      vm2.customize ["modifyvm", :id, "--memory", "4096"]
+      vm2.customize ["modifyvm", :id, "--cpus", 4]
+      vm2.gui = false
+    end
+  end
+
+end
