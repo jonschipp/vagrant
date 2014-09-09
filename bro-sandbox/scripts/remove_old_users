@@ -3,7 +3,6 @@
 DB=/tmp/sandbox_db
 CURRENT=$(date +"%s")
 ARGC=$#
-DAYS="$1"
 
 argcheck() {
 if [ $ARGC -lt $1 ]; then
@@ -12,7 +11,9 @@ if [ $ARGC -lt $1 ]; then
 fi
 }
 
-argcheck 1
+#argcheck 1
+
+source <(grep 'DAYS=' /usr/local/bin/sandbox_login)
 
 KEEP=$(($DAYS*86400))
 
