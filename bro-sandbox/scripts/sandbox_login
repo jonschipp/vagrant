@@ -10,10 +10,11 @@ AVAILABLE_USER=1
 PW_LENGTH=4 # Not implemented
 
 ## Container configuration (applies to each container)
+VIRTUSER=demo  # Account used when container is entered (Must exist in container!)
 CPU=1	       # Number of CPU's allocated to each container
 RAM=256m       # Amount of memory allocated to each container
-HOSTNAME=bro   # Will end up as demo@bro:~$ in shell
-NETWORK=none   # Disable networking by default: none
+HOSTNAME=bro   # Cosmetic: Will end up as $USER@$HOSTNAME:~$ in shell
+NETWORK=none   # Disable networking by default: none; Enable networking: bridge
 DNS=127.0.0.1  # Use loopback when networking is disabled to prevent error messages
 
 if [ ! -r $DB ]; then
@@ -158,7 +159,7 @@ function try_again {
 
 function start_container {
         message "Enjoy yourself!"
-        exec sudo docker run --name="brolive.${USERNAME}" -t -h $HOSTNAME -c $CPU -m $RAM --net $NETWORK --dns $DNS -v /exercises:/exercises:ro -v /versions:/versions:ro -i jonschipp/latest-bro-sandbox /bin/bash -c 'su - demo' 2>/dev/null
+        exec sudo docker run --name="brolive.${USERNAME}" -t -h $HOSTNAME -c $CPU -m $RAM --net $NETWORK --dns $DNS -v /exercises:/exercises:ro -v /versions:/versions:ro -i jonschipp/latest-bro-sandbox /bin/bash -c 'su - "$VIRTUSER"' 2>/dev/null
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
