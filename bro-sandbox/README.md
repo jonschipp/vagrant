@@ -31,7 +31,7 @@ Common Tasks:
         $ passwd demo
 ```
 
-* Change the password of a container user (Not a system account). Place an SHA-1 hash of the password of choice in the second field of /tmp/sandbox_db.
+* Change the password of a container user (Not a system account). Place an SHA-1 hash of the password of choice in the second field of desired user in /tmp/sandbox_db.
 
 ```
 	$ PASS=$(echo "newpassword" | sha1sum | sed 's/ .*//)
@@ -59,13 +59,13 @@ Common Tasks:
 
 ```
         $ grep -A 5 "Container config" /usr/local/bin/sandbox_login
-        ## Container configuration (applies to each container)
+	## Container configuration (applies to each container)
 	VIRTUSER=demo  # Account used when container is entered (Must exist in container!)
-        CPU=1          # Number of CPU's allocated to each container
-        RAM=256m       # Amount of memory allocated to each container
+	CPU=1          # Number of CPU's allocated to each container
+	RAM=256m       # Amount of memory allocated to each container
 	HOSTNAME=bro   # Cosmetic: Will end up as $USER@$HOSTNAME:~$ in shell
 	NETWORK=none   # Disable networking by default: none; Enable networking: bridge
-        DNS=127.0.0.1  # Use loopback when networking is disabled to prevent error messages
+	DNS=127.0.0.1  # Use loopback when networking is disabled to prevent error messages
 ```
 
 * Set container size limit 
