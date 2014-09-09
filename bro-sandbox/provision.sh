@@ -2,13 +2,15 @@
 # Author: Jon Schipp <jonschipp@gmail.com>
 # Written for Ubuntu Saucy and Trusty, should be adaptable to other distros.
 
-# Global Variables
+## Global Variables
 VAGRANT=/home/vagrant
 if [ -d $VAGRANT ]; then
 	HOME=/home/vagrant
 else
 	HOME=/root
 fi
+
+# Installation notification
 COWSAY=/usr/games/cowsay
 IRCSAY=/usr/local/bin/ircsay
 IRC_CHAN="#replace_me"
@@ -16,9 +18,13 @@ HOST=$(hostname -s)
 LOGFILE=/root/bro-sandbox_install.log
 DST=/usr/local/bin
 EMAIL=user@company.com
+
+# System Configuration
 DOCKER_FILE="Dockerfile-2.3" # Build image from specific Dockerfile. Default builds Bro 2.3.
 CONTAINER_DESTINATION= # Put containers on another volume (optional)
 IMAGE="jonschipp/latest-bro-sandbox" # Assign a different name to the image (optional). Must make same in sandbox scripts
+USER="demo" # User account to create for that people will ssh into to enter container
+PASS="demo" # Password for the account that users will ssh into
 
 # Get Ubuntu distribution information
 source /etc/lsb-release
@@ -143,12 +149,12 @@ function user_configuration() {
 local ORDER=$1
 local SSH_CONFIG=/etc/ssh/sshd_config 
 local RESTART_SSH=0
-echo -e "$ORDER Configuring the demo user account!\n"
+echo -e "$ORDER Configuring the $USER user account!\n"
 
 if [ ! -e /etc/sudoers.d/sandbox ]; then
 cat > /etc/sudoers.d/sandbox <<EOF
 Cmnd_Alias SANDBOX = /usr/bin/docker
-demo ALL=(root) NOPASSWD: SANDBOX
+$USER ALL=(root) NOPASSWD: SANDBOX
 EOF
 chmod 0440 /etc/sudoers.d/sandbox && chown root:root /etc/sudoers.d/sandbox
 fi
@@ -158,10 +164,10 @@ then
 	sh -c 'echo /usr/local/bin/sandbox_shell >> /etc/shells'
 fi
 
-if ! getent passwd demo 1>/dev/null
+if ! getent passwd $USER 1>/dev/null
 then
-	adduser --disabled-login --gecos "" --shell $DST/sandbox_shell demo
-	sed -i '/demo/s/:!:/:$6$CivABH1p$GU\/U7opFS0T31c.6xBRH98rc6c6yg9jiC5adKjWo1XJHT3r.25ySF5E5ajwgwZlSk6OouLfIAjwIbtluf40ft\/:/' /etc/shadow
+	adduser --disabled-login --gecos "" --shell $DST/sandbox_shell $USER
+	echo "$USER:$PASS" | chpasswd 
 fi
 
 if ! grep -q "ClientAliveInterval 15" $SSH_CONFIG
@@ -172,9 +178,9 @@ fi
 
 if grep -q "PasswordAuthentication no" $SSH_CONFIG
 then
-	if ! grep -q "Match User demo" $SSH_CONFIG
+	if ! grep -q "Match User $USER" $SSH_CONFIG
 	then
-		echo -e "\nMatch User demo\n\tPasswordAuthentication yes\n" >> $SSH_CONFIG
+		echo -e "\nMatch User $USER\n\tPasswordAuthentication yes\n" >> $SSH_CONFIG
 		RESTART_SSH=1
 	fi
 fi
@@ -385,7 +391,7 @@ sample_exercises "7.)"
 
 echo
 if [ -d $VAGRANT ]; then
-        echo "Try it out: ssh -p 2222 demo@127.0.0.1 -o UserKnownHostsFile=/dev/null"
+        echo "Try it out: ssh -p 2222 $USER@127.0.0.1 -o UserKnownHostsFile=/dev/null"
 else
-        echo "Try it out: ssh demo@<ip> -o UserKnownHostsFile=/dev/null"
+        echo "Try it out: ssh $USER@<ip> -o UserKnownHostsFile=/dev/null"
 fi
