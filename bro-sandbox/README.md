@@ -34,7 +34,7 @@ Common Tasks:
 * Change the password of a container user (Not a system account). Place an SHA-1 hash of the password of choice in the second field of /tmp/sandbox_db.
 
 ```
-        $ PASS=$(echo "newpassword" | sha1sum | sed 's/ .*//)
+	$ PASS=$(echo "newpassword" | sha1sum | sed 's/ .*//)
 	$ USER=testuser
 	$ sed -i "/^$USER:/ s/:[^:]*/:$PASS/" /tmp/sandbox_db
 	$ grep testuser /tmp/sandbox_db
