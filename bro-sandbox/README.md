@@ -1,5 +1,4 @@
-Bro-Sandbox
-===========
+# Bro-Sandbox
 
 ````
 $ vagrant up
@@ -22,8 +21,7 @@ The password for the demo user is:
 demo
 ```
 
-Administration
-==============
+## Administration & Usability
 
 Common Tasks:
 
@@ -33,9 +31,20 @@ Common Tasks:
         $ passwd demo
 ```
 
+* Change the password of a container user (Not a system account). Place an SHA-1 hash of the password of choice in the second field of /tmp/sandbox_db.
+
+```
+        $ PASS=$(echo "newpassword" | sha1sum | sed 's/ .*//)
+	$ USER=testuser
+	$ sed -i "/^$USER:/ s/:[^:]*/:$PASS/" /tmp/sandbox_db
+	$ grep testuser /tmp/sandbox_db
+	testuser:dd76770fc59bcb08cfe7951e5839ac2cb007b9e5:1410247448
+
+```
+
 * Configure container and user lifetime (e.g. conference duration)
 
-  1. Specify the number of days for user account lifetime in:
+  1. Specify the number of days for user account and container lifetime in:
 
 ```
         $ grep ^DAYS /usr/local/bin/sandbox_login
@@ -44,17 +53,18 @@ Common Tasks:
 
   Removal scripts are cron jobs that are scheduled in /etc/cron.d/sandbox
 
-* Allocate more or less resources for containers, and control other container settings
+* Allocate more or less resources for containers, and control other container settings.
   These changes will take effect for each newly created container.
   - System and use case dependent
 
 ```
         $ grep -A 5 "Container config" /usr/local/bin/sandbox_login
         ## Container configuration (applies to each container)
+	VIRTUSER=demo  # Account used when container is entered (Must exist in container!)
         CPU=1          # Number of CPU's allocated to each container
         RAM=256m       # Amount of memory allocated to each container
-        HOSTNAME=bro   # Cosmetic: will end up as demo@bro:~$ in shell
-        NETWORK=none   # Disable networking (default: none)
+	HOSTNAME=bro   # Cosmetic: Will end up as $USER@$HOSTNAME:~$ in shell
+	NETWORK=none   # Disable networking by default: none; Enable networking: bridge
         DNS=127.0.0.1  # Use loopback when networking is disabled to prevent error messages
 ```
 
@@ -74,9 +84,17 @@ Common Tasks:
         # docker build -t jonschipp/latest-bro-sandbox - < $HOME/Dockerfile
 ```
 
+* Adding, removing, or modifying exercises
+
+  1. Make changes in /exercises on the host's filesystem
+
+  *  Changes are immediately available for new and existing containers
+
+## Branding
+
 * Custom greeting upon initial system login
 
-  1. Edit /usr/local/bin/sandbox_shell [#]_ with the text of your liking
+  1. Edit /usr/local/bin/sandbox_shell with the text of your liking
 
 ```
         #!/usr/bin/env bash
@@ -100,7 +118,7 @@ Common Tasks:
 
 * Custom login message for each user
 
-  1. Edit body of message function in /usr/local/bin/sandbox_login with the text of your liking::
+  1. Edit body of message function in /usr/local/bin/sandbox_login with the text of your liking
 
 ```
         function message {
@@ -113,14 +131,7 @@ Common Tasks:
         }
 ```
 
-* Adding, removing, or modifying exercises
-
-  1. Make changes in /exercises on the host's filesystem
-
-  *  Changes are immediately available for new and existing containers
-
-Demo
-====
+## Demo
 
 Here's a brief demonstration:
 
