@@ -7,7 +7,7 @@ DAYS=3 # Length of the event in days
 EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
 DB=/tmp/sandbox_db
 AVAILABLE_USER=1
-PW_LENGTH=4
+PW_LENGTH=4 # Not implemented
 
 ## Container configuration (applies to each container)
 CPU=1	       # Number of CPU's allocated to each container
