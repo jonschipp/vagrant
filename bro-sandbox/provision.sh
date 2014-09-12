@@ -20,7 +20,7 @@ DST=/usr/local/bin
 EMAIL=user@company.com
 
 # System Configuration
-DOCKER_FILE="Dockerfile-2.3" # Build image from specific Dockerfile. Default builds Bro 2.3.
+DOCKER_FILE="Dockerfile-2.3.1" # Build image from specific Dockerfile. Default builds Bro 2.3.1
 CONTAINER_DESTINATION= # Put containers on another volume (optional)
 IMAGE="jonschipp/latest-bro-sandbox" # Assign a different name to the image (optional). Must make same in sandbox scripts
 USER="demo" # User account to create for that people will ssh into to enter container
@@ -89,8 +89,7 @@ no_vagrant_setup() {
 local COUNT=0
 local SUCCESS=0
 local FILES="
-https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/Dockerfile
-https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/Dockerfile-2.3
+https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/$DOCKER_FILE
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/etc.default.docker
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/sandbox.cron
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/remove_old_containers
