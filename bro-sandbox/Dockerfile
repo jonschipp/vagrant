@@ -21,3 +21,4 @@ RUN echo "demo ALL=(root) NOPASSWD:/usr/local/bro/bin/broctl" >> /etc/sudoers.d/
 RUN chmod 0440 /etc/sudoers.d/bro && chown root:root /etc/sudoers.d/bro
 RUN echo "alias broctl='sudo /usr/local/bro/bin/broctl'" >> /etc/profile.d/bro.sh
 RUN echo "alias bro='sudo /usr/local/bro/bin/bro'" >> /etc/profile.d/bro.sh
+RUN sed -i 's/eth0/lo/' /usr/local/bro/etc/node.cfg
