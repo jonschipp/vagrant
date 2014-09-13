@@ -21,7 +21,7 @@ EMAIL=user@company.com
 
 # System Configuration
 DOCKER_FILE="Dockerfile-2.3.1" # Build image from specific Dockerfile. Default builds Bro 2.3.1
-CONTAINER_DESTINATION= # Put containers on another volume (optional)
+CONTAINER_DESTINATION= # Put containers on another volume e.g. /dev/sdb1 (optional)
 IMAGE="jonschipp/latest-bro-sandbox" # Assign a different name to the image (optional). Must make same in sandbox scripts
 USER="demo" # User account to create for that people will ssh into to enter container
 PASS="demo" # Password for the account that users will ssh into
