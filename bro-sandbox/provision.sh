@@ -110,7 +110,7 @@ https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/r
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/remove_old_users
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/disk_limit
 https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/sandbox_login
-https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/$SHELL
+https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/sandbox_shell
 "
 
 echo -e "Downloading required configuration files!\n"
@@ -160,7 +160,7 @@ fi
 
 function user_configuration() {
 local ORDER=$1
-local SSH_CONFIG=/etc/ssh/sshd_config 
+local SSH_CONFIG=/etc/ssh/sshd_config
 local RESTART_SSH=0
 echo -e "$ORDER Configuring the $USER user account!\n"
 
@@ -179,12 +179,12 @@ fi
 
 if ! grep -q sandbox /etc/shells
 then
-	sh -c "echo $CONFIG_DIR/$SHELL >> /etc/shells"
+	sh -c "echo $SHELL >> /etc/shells"
 fi
 
 if ! getent passwd $USER 1>/dev/null
 then
-	adduser --disabled-login --gecos "" --shell $CONFIG_DIR/$SHELL $USER
+	adduser --disabled-login --gecos "" --shell $SHELL $USER
 	echo "$USER:$PASS" | chpasswd
 fi
 
@@ -221,8 +221,8 @@ local ORDER=$1
 local LIMITS=/etc/security/limits.d
 echo -e "$ORDER Configuring the system for use!\n"
 
-if [ -e $HOME/$SHELL ]; then
-	install -o root -g root -m 755 $HOME/$SHELL $CONFIG_DIR/$SHELL
+if [ -e $HOME/sandbox_shell ]; then
+	install -o root -g root -m 755 $HOME/sandbox_shell $SHELL
 fi
 
 if [ -e $HOME/sandbox_login ]; then
