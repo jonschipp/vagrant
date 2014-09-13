@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Global Variables
+CONFIG=/etc/sandbox/sandbox.conf
+
 # Varables:
 FAILURE_COUNT=0
 TIME=$(date +"%s")
@@ -9,13 +12,19 @@ DB=/tmp/sandbox_db
 AVAILABLE_USER=1
 PW_LENGTH=4 # Not implemented
 
-## Container configuration (applies to each container)
-VIRTUSER=demo  # Account used when container is entered (Must exist in container!)
-CPU=1	       # Number of CPU's allocated to each container
-RAM=256m       # Amount of memory allocated to each container
-HOSTNAME=bro   # Cosmetic: Will end up as $USER@$HOSTNAME:~$ in shell
-NETWORK=none   # Disable networking by default: none; Enable networking: bridge
-DNS=127.0.0.1  # Use loopback when networking is disabled to prevent error messages
+# Retrieve globals
+if [ -f $CONFIG ]; then
+	source $CONFIG
+fi
+
+## Other
+IMAGE="$1"           # Custom image name passed from sandbox_shell as argument
+BASENAME="$IMAGE"    # Container prefix as $BASENAME.$USERNAME, used for re-attachment
+
+# Override with per image configuration
+if [ -f $CONFIG ]; then
+	source $CONFIG_DIR/${IMAGE}.conf
+fi
 
 if [ ! -r $DB ]; then
         touch $DB
