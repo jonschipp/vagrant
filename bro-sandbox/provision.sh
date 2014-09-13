@@ -263,7 +263,7 @@ then
 		install -o root -g root -m 644 $HOME/etc.default.docker $DEFAULT
 
 		if [ -d /var/lib/docker ]; then
-			rm -rf /var/lib/docker/
+			rm -rf /var/lib/docker/*
 		fi
 
 		if [ ! -z $CONTAINER_DESTINATION ]; then
