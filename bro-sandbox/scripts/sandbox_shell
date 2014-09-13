@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
+# Global Variables
+CONFIG=/etc/sandbox/sandbox.conf
+if [ -f $CONFIG ]
+	source $CONFIG
+else
+	echo "$CONFIG not found! Exiting..."
+	exit 1
+fi
+
 clear
 
 echo "Welcome to Bro Live!"
@@ -15,4 +24,6 @@ echo
 echo "A place to try out Bro."
 echo
 
-exec timeout 1m /usr/local/bin/sandbox_login
+#########################################
+exec timeout 1m $LAUNCH_CONTAINER $IMAGE
+#########################################
