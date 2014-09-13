@@ -242,6 +242,30 @@ if [ ! -e $LIMITS/nproc.conf ]; then
 fi
 }
 
+function install_configuration_file() {
+if [ ! -f $CONFIG ]; then
+
+echo -e "Installing global configuration file to ${CONFIG}!\n"
+
+echo "# System Configuration"		 									>> $CONFIG
+echo "IMAGE=\"$IMAGE\"       # Default: launch containers from this image" 					>> $CONFIG
+echo "CONFIG_DIR=\"$CONFIG_DIR\"" 	 									>> $CONFIG
+echo "SHELL=\"$SHELL\"       # User's shell: displays login banner then launches sandbox_login"    		>> $CONFIG
+echo "LAUNCH_CONTAINER=\"$CONFIG_DIR/sandbox_login\"    # Container management script"				>> $CONFIG
+echo "DB=\"$DB\"             # Credentials database, must be readable by \$USER"				>> $CONFIG
+echo "BASENAME=\"$BASENAME\" # Container prefix as \$BASENAME.\$USERNAME, Used for re-attachment." 		>> $CONFIG
+echo 														>> $CONFIG
+echo "# Container Configuration"										>> $CONFIG
+echo "VIRTUSER=\"$VIRTUSER\" # Account used when container is entered (Must exist in container!)"		>> $CONFIG
+echo "CPU=\"$CPU\" 	     # Number of CPU's allocated to each container"					>> $CONFIG
+echo "RAM=\"$RAM\"           # Amount of memory allocated to each container"					>> $CONFIG
+echo "HOSTNAME=\"$HOSTNAME\" # Cosmetic: Will end up as \$USER@\$HOSTNAME:~\$ in shell" 			>> $CONFIG
+echo "NETWORK=\"$NETWORK\"   # Disable networking by default: none; Enable networking: bridge"			>> $CONFIG
+echo "DNS=\"$DNS\"           # Use loopback when networking is disabled to prevent error messages"		>> $CONFIG
+
+fi
+}
+
 function container_scripts(){
 local ORDER=$1
 echo -e "$ORDER Installing container maintainence scripts!\n"
@@ -404,6 +428,7 @@ user_configuration "2.)"
 system_configuration "3.)"
 container_scripts "4.)"
 docker_configuration "5.)"
+install_configuration_file "6.)"
 #training_configuration "6.)"
 sample_exercises "7.)"
 
