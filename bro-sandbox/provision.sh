@@ -16,7 +16,6 @@ IRCSAY=/usr/local/bin/ircsay
 IRC_CHAN="#replace_me"
 HOST=$(hostname -s)
 LOGFILE=/root/bro-sandbox_install.log
-DST=/usr/local/bin
 EMAIL=user@company.com
 
 # System Configuration
@@ -25,6 +24,7 @@ CONTAINER_DESTINATION= # Put containers on another volume e.g. /dev/sdb1 (option
 IMAGE="jonschipp/latest-bro-sandbox" # Assign a different name to the image (optional). Must make same in sandbox scripts
 USER="demo" # User account to create for that people will ssh into to enter container
 PASS="demo" # Password for the account that users will ssh into
+CONFIG_DIR=/usr/local/bin # Directory to install container scripts
 
 # Get Ubuntu distribution information
 source /etc/lsb-release
@@ -158,15 +158,20 @@ EOF
 chmod 0440 /etc/sudoers.d/sandbox && chown root:root /etc/sudoers.d/sandbox
 fi
 
+# Create scripts directory if it doesn't exist
+if [ ! -d $CONFIG_DIR ]; then
+	mkdir -p $CONFIG_DIR
+fi
+
 if ! grep -q sandbox /etc/shells
 then
-	sh -c 'echo /usr/local/bin/sandbox_shell >> /etc/shells'
+	sh -c "echo $CONFIG_DIR/sandbox_shell >> /etc/shells"
 fi
 
 if ! getent passwd $USER 1>/dev/null
 then
-	adduser --disabled-login --gecos "" --shell $DST/sandbox_shell $USER
-	echo "$USER:$PASS" | chpasswd 
+	adduser --disabled-login --gecos "" --shell $CONFIG_DIR/sandbox_shell $USER
+	echo "$USER:$PASS" | chpasswd
 fi
 
 if ! grep -q "ClientAliveInterval 15" $SSH_CONFIG
@@ -203,11 +208,11 @@ local LIMITS=/etc/security/limits.d
 echo -e "$ORDER Configuring the system for use!\n"
 
 if [ -e $HOME/sandbox_shell ]; then
-	install -o root -g root -m 755 $HOME/sandbox_shell $DST/sandbox_shell
+	install -o root -g root -m 755 $HOME/sandbox_shell $CONFIG_DIR/sandbox_shell
 fi
 
 if [ -e $HOME/sandbox_login ]; then
-	install -o root -g root -m 755 $HOME/sandbox_login $DST/sandbox_login
+	install -o root -g root -m 755 $HOME/sandbox_login $CONFIG_DIR/sandbox_login
 fi
 
 if [ -e $HOME/sandbox.cron ]; then
@@ -230,7 +235,7 @@ echo -e "$ORDER Installing container maintainence scripts!\n"
 for FILE in disk_limit remove_old_containers remove_old_users
 do
 	if [ -e $HOME/$FILE ]; then
-		install -o root -g root -m 750 $HOME/$FILE $DST/sandbox_${FILE}
+		install -o root -g root -m 750 $HOME/$FILE $CONFIG_DIR/sandbox_${FILE}
 	fi
 done
 }
