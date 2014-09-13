@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Global Variables
 CONFIG=/etc/sandbox/sandbox.conf
-if [ -f $CONFIG ]
+if [ -f $CONFIG ]; then
 	source $CONFIG
 else
 	echo "$CONFIG not found! Exiting..."

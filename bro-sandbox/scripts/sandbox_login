@@ -22,12 +22,13 @@ IMAGE="$1"           # Custom image name passed from sandbox_shell as argument
 BASENAME="$IMAGE"    # Container prefix as $BASENAME.$USERNAME, used for re-attachment
 
 # Override with per image configuration
-if [ -f $CONFIG ]; then
+if [ -f $CONFIG_DIR/${IMAGE}.conf ]; then
 	source $CONFIG_DIR/${IMAGE}.conf
 fi
 
 if [ ! -r $DB ]; then
         touch $DB
+	chmod 666 $DB
 fi
 
 function quit {
@@ -90,7 +91,7 @@ function new_user {
 function existing_user {
         echo "Your previous account is only valid for the length of the event, after that you must create a new account"
         echo
-        while test $FAILURE_COUNT -lt 3 
+        while test $FAILURE_COUNT -lt 3
         do
                 read -r -p "Username: " USERNAME
                 USERNAME=$(sanitize $USERNAME)
@@ -124,7 +125,7 @@ function verify_new_user {
                 AVAILABLE_USER=1
         else
                 AVAILABLE_USER=0
-        fi              
+        fi
 }
 
 function verify_new_password {
@@ -143,7 +144,7 @@ function verify_new_password {
                 fi
         let FAILURE_COUNT++
         done
-        
+
         HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
 
         (
