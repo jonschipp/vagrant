@@ -312,7 +312,7 @@ then
 		if [ ! -z $CONTAINER_DESTINATION ]; then
 
 			if ! mount | grep -q $CONTAINER_DESTINATION ; then
-				mount $CONTAINER_DESTINATION /var/lib/docker
+				mount -o defaults,noatime,nodiratime $CONTAINER_DESTINATION /var/lib/docker
 			fi
 
 			if ! grep -q $CONTAINER_DESTINATION /etc/fstab 2>/dev/null; then
