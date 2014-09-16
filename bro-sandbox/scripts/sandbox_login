@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Global Variables
+CONFIG=/etc/sandbox/sandbox.conf
+
 # Varables:
 FAILURE_COUNT=0
 TIME=$(date +"%s")
@@ -9,16 +12,23 @@ DB=/tmp/sandbox_db
 AVAILABLE_USER=1
 PW_LENGTH=4 # Not implemented
 
-## Container configuration (applies to each container)
-VIRTUSER=demo  # Account used when container is entered (Must exist in container!)
-CPU=1	       # Number of CPU's allocated to each container
-RAM=256m       # Amount of memory allocated to each container
-HOSTNAME=bro   # Cosmetic: Will end up as $USER@$HOSTNAME:~$ in shell
-NETWORK=none   # Disable networking by default: none; Enable networking: bridge
-DNS=127.0.0.1  # Use loopback when networking is disabled to prevent error messages
+# Retrieve globals
+if [ -f $CONFIG ]; then
+	source $CONFIG
+fi
+
+## Other
+IMAGE="$1"           # Custom image name passed from sandbox_shell as argument
+BASENAME="$IMAGE"    # Container prefix as $BASENAME.$USERNAME, used for re-attachment
+
+# Override with per image configuration
+if [ -f $CONFIG_DIR/${IMAGE}.conf ]; then
+	source $CONFIG_DIR/${IMAGE}.conf
+fi
 
 if [ ! -r $DB ]; then
         touch $DB
+	chmod 666 $DB
 fi
 
 function quit {
@@ -81,7 +91,7 @@ function new_user {
 function existing_user {
         echo "Your previous account is only valid for the length of the event, after that you must create a new account"
         echo
-        while test $FAILURE_COUNT -lt 3 
+        while test $FAILURE_COUNT -lt 3
         do
                 read -r -p "Username: " USERNAME
                 USERNAME=$(sanitize $USERNAME)
@@ -94,7 +104,7 @@ function existing_user {
                         echo Success
                         log "${USERNAME}: Returning user"
                         message "Welcome back!"
-                        sudo docker start "brolive.${USERNAME}" > /dev/null 2>&1 && exec sudo docker attach "brolive.${USERNAME}"
+                        sudo docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && exec sudo docker attach "${BASENAME}.${USERNAME}"
                         if [ $? -ne 0 ]; then
                                 echo "Launching container failed! Please report to admins"
                                 quit "Launching container failed!"
@@ -115,7 +125,7 @@ function verify_new_user {
                 AVAILABLE_USER=1
         else
                 AVAILABLE_USER=0
-        fi              
+        fi
 }
 
 function verify_new_password {
@@ -134,7 +144,7 @@ function verify_new_password {
                 fi
         let FAILURE_COUNT++
         done
-        
+
         HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
 
         (
@@ -159,7 +169,7 @@ function try_again {
 
 function start_container {
         message "Enjoy yourself!"
-        exec sudo docker run --name="brolive.${USERNAME}" -t -h $HOSTNAME -c $CPU -m $RAM --net $NETWORK --dns $DNS -v /exercises:/exercises:ro -v /versions:/versions:ro -i jonschipp/latest-bro-sandbox /bin/bash -c 'su - "$VIRTUSER"' 2>/dev/null
+        exec sudo docker run --name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME -c $CPU -m $RAM --net $NETWORK --dns $DNS -v /exercises:/exercises:ro -v /versions:/versions:ro -i $IMAGE /bin/bash -c 'su - "$VIRTUSER"' 2>/dev/null
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
