@@ -20,9 +20,9 @@ EMAIL=user@company.com
 
 # System Configuration
 DOCKER_FILE="Dockerfile-2.3.1" 			# Build image from specific Dockerfile. Default builds Bro 2.3.1
-CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional)
-FS="ext4"					# Filesystem type for CONTAINER_DESTINATION
-IMAGE="jonschipp/latest-bro-sandbox" 		# Assign a different name to the image (optional). Must make same in sandbox scripts
+CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
+FS="ext4"					# Filesystem type for CONTAINER_DESTINATION, used for mounting
+IMAGE="bro-2.3.1"		 		# Assign a different name to the image (optional)
 USER="demo" 					# User account to create for that people will ssh into to enter container
 PASS="demo" 					# Password for the account that users will ssh into
 DB=/tmp/sandbox_db 				# Credentials database, must be readable by $USER
@@ -335,8 +335,8 @@ then
 		docker build -t $IMAGE - < $HOME/$DOCKER_FILE
 	else
 		docker pull jonschipp/latest-bro-sandbox
+		docker tag jonschipp/latest-bro-sandbox $IMAGE
 	fi
-	#docker commit $(docker ps -a -q | head -n 1) jonschipp/latest-bro-sandbox
 fi
 }
 
