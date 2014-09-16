@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
 # Destroy users which are older than x days
-DB=/tmp/sandbox_db
 CURRENT=$(date +"%s")
 ARGC=$#
-
-argcheck() {
-if [ $ARGC -lt $1 ]; then
-        echo "Please specify an argument as the max. number of days to keep user accounts"
+DAYS=3 		   # Overwritten by value in $CONFIG
+DB=/tmp/sandbox_db # Overwritten by value in $CONFIG
+CONFIG=/etc/sandbox/sandbox.conf
+if [ -f $CONFIG ]; then
+        source $CONFIG
+else
+        echo "$CONFIG not found! Exiting..."
         exit 1
 fi
-}
-
-#argcheck 1
-
-source <(grep 'DAYS=' /usr/local/bin/sandbox_login)
 
 KEEP=$(($DAYS*86400))
 

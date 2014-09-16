@@ -33,6 +33,7 @@ SHELL="$CONFIG_DIR/sandbox_shell"		# $USER's shell: displays login banner then l
 BASENAME="brolive"				# Container prefix as $BASENAME.$USERNAME, used for re-attachment.
 
 # Container configuration (applies to each container)
+DAYS=3	       # Container lifetime specified in days, removed after x days
 VIRTUSER=demo  # Account used when container is entered (Must exist in container!)
 CPU=1          # Number of CPU's allocated to each container
 RAM=256m       # Amount of memory allocated to each container
@@ -256,6 +257,7 @@ echo "DB=\"$DB\"             # Credentials database, must be readable by \$USER"
 echo "BASENAME=\"$BASENAME\" # Container prefix as \$BASENAME.\$USERNAME, Used for re-attachment." 		>> $CONFIG
 echo 														>> $CONFIG
 echo "# Container Configuration"										>> $CONFIG
+echo "DAYS=\"$DAYS\" 	     # Container lifetime specified in days, removed after x days" 			>> $CONFIG
 echo "VIRTUSER=\"$VIRTUSER\" # Account used when container is entered (Must exist in container!)"		>> $CONFIG
 echo "CPU=\"$CPU\" 	     # Number of CPU's allocated to each container"					>> $CONFIG
 echo "RAM=\"$RAM\"           # Amount of memory allocated to each container"					>> $CONFIG
