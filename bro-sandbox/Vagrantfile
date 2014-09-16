@@ -8,7 +8,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "trusty"
   config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
-  config.vm.provision "file",  source: "Dockerfile",                    destination: "Dockerfile"
+  config.vm.provision "file",  source: "Dockerfile-2.3.1",              destination: "Dockerfile-2.3.1"
   config.vm.provision "file",  source: "sandbox.cron",                  destination: "sandbox.cron"
   config.vm.provision "file",  source: "etc.default.docker",            destination: "etc.default.docker"
   config.vm.provision "file",  source: "scripts/sandbox_login", 	destination: "sandbox_login"
