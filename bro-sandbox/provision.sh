@@ -30,6 +30,7 @@ SCRIPTS_DIR=/usr/local/bin 			# Directory to install admin scripts
 CONFIG_DIR=/etc/sandbox 			# Directory to install configuration and scripts
 CONFIG="$CONFIG_DIR/sandbox.conf" 		# Global configuration file
 SHELL="$CONFIG_DIR/sandbox_shell"		# $USER's shell: displays login banner then launches sandbox_login
+LAUNCH_CONTAINER="$CONFIG_DIR/sandbox_login"	# User management script and container launcher
 BASENAME="brolive"				# Container prefix as $BASENAME.$USERNAME, used for re-attachment.
 
 # Container configuration (applies to each container)
@@ -252,7 +253,7 @@ echo "# System Configuration"		 									>> $CONFIG
 echo "IMAGE=\"$IMAGE\"       # Default: launch containers from this image" 					>> $CONFIG
 echo "CONFIG_DIR=\"$CONFIG_DIR\"" 	 									>> $CONFIG
 echo "SHELL=\"$SHELL\"       # User's shell: displays login banner then launches sandbox_login"    		>> $CONFIG
-echo "LAUNCH_CONTAINER=\"$CONFIG_DIR/sandbox_login\"    # Container management script"				>> $CONFIG
+echo "LAUNCH_CONTAINER=\"$LAUNCH_CONTAINER\"       # User management script and container launcher"		>> $CONFIG
 echo "DB=\"$DB\"             # Credentials database, must be readable by \$USER"				>> $CONFIG
 echo "BASENAME=\"$BASENAME\" # Container prefix as \$BASENAME.\$USERNAME, Used for re-attachment." 		>> $CONFIG
 echo 														>> $CONFIG
