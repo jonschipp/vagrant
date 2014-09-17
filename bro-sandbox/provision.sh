@@ -20,6 +20,7 @@ EMAIL=user@company.com
 
 # System Configuration
 DOCKER_FILE="Dockerfile" 			# Build image from specific Dockerfile. Defaults to latest stable release.
+CUSTOM_IMAGE="no"				# no to pull image from Docker hub, yes to build image from $DOCKER_FILE if it exists
 CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
 FS="ext4"					# Filesystem type for CONTAINER_DESTINATION, used for mounting
 IMAGE="bro-2.3.1"		 		# Assign a different name to the image (optional)
@@ -332,7 +333,7 @@ fi
 
 if ! docker images | grep -q $IMAGE
 then
-	if [ -e $HOME/$DOCKER_FILE ]; then
+	if [ -e $HOME/$DOCKER_FILE ] && [[ "$CUSTOM_IMAGE" == "yes" ]]; then
 		docker build -t $IMAGE - < $HOME/$DOCKER_FILE
 	else
 		docker pull jonschipp/latest-bro-sandbox
