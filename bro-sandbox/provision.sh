@@ -33,6 +33,7 @@ CONFIG="$CONFIG_DIR/sandbox.conf" 		# Global configuration file
 SHELL="$CONFIG_DIR/sandbox_shell"		# $USER's shell: displays login banner then launches sandbox_login
 LAUNCH_CONTAINER="$CONFIG_DIR/sandbox_login"	# User management script and container launcher
 BASENAME="brolive"				# Container prefix as $BASENAME.$USERNAME, used for re-attachment.
+MOTD="Training materials are in /exercises"	# Message of the day is displayed before container launch and reattachment
 
 # Container configuration (applies to each container)
 DAYS=3	       # Container lifetime specified in days, removed after x days
@@ -267,6 +268,7 @@ echo "RAM=\"$RAM\"           # Amount of memory allocated to each container"				
 echo "HOSTNAME=\"$HOSTNAME\" # Cosmetic: Will end up as \$USER@\$HOSTNAME:~\$ in shell" 			>> $CONFIG
 echo "NETWORK=\"$NETWORK\"   # Disable networking by default: none; Enable networking: bridge"			>> $CONFIG
 echo "DNS=\"$DNS\"           # Use loopback when networking is disabled to prevent error messages"		>> $CONFIG
+echo "MOTD=\"$MOTD\"         # Message of the day is displayed before container launch and reattachment"	>> $CONFIG
 
 fi
 }
