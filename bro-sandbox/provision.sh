@@ -19,7 +19,7 @@ LOGFILE=/root/bro-sandbox_install.log
 EMAIL=user@company.com
 
 # System Configuration
-DOCKER_FILE="Dockerfile-2.3.1" 			# Build image from specific Dockerfile. Default builds Bro 2.3.1
+DOCKER_FILE="Dockerfile" 			# Build image from specific Dockerfile. Defaults to latest stable release.
 CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
 FS="ext4"					# Filesystem type for CONTAINER_DESTINATION, used for mounting
 IMAGE="bro-2.3.1"		 		# Assign a different name to the image (optional)
