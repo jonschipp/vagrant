@@ -3,7 +3,7 @@
 CURRENT=$(date +"%s")
 ARGC=$#
 DAYS=3 		   # Overwritten by value in $CONFIG
-DB=/tmp/sandbox_db # Overwritten by value in $CONFIG
+DB=/var/tmp/sandbox_db # Overwritten by value in $CONFIG
 CONFIG=/etc/sandbox/sandbox.conf
 if [ -f $CONFIG ]; then
         source $CONFIG
