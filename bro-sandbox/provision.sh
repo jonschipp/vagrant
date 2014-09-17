@@ -25,7 +25,7 @@ FS="ext4"					# Filesystem type for CONTAINER_DESTINATION, used for mounting
 IMAGE="bro-2.3.1"		 		# Assign a different name to the image (optional)
 USER="demo" 					# User account to create for that people will ssh into to enter container
 PASS="demo" 					# Password for the account that users will ssh into
-DB=/tmp/sandbox_db 				# Credentials database, must be readable by $USER
+DB=/var/tmp/sandbox_db 				# Credentials database, must be readable by $USER
 SCRIPTS_DIR=/usr/local/bin 			# Directory to install admin scripts
 CONFIG_DIR=/etc/sandbox 			# Directory to install configuration and scripts
 CONFIG="$CONFIG_DIR/sandbox.conf" 		# Global configuration file
@@ -256,6 +256,7 @@ echo "SHELL=\"$SHELL\"       # User's shell: displays login banner then launches
 echo "LAUNCH_CONTAINER=\"$LAUNCH_CONTAINER\"       # User management script and container launcher"		>> $CONFIG
 echo "DB=\"$DB\"             # Credentials database, must be readable by \$USER"				>> $CONFIG
 echo "BASENAME=\"$BASENAME\" # Container prefix as \$BASENAME.\$USERNAME, Used for re-attachment." 		>> $CONFIG
+echo "USER=\"$USER\"	     # User created during install, used for ssh (def: demo)"				>> $CONFIG
 echo 														>> $CONFIG
 echo "# Container Configuration"										>> $CONFIG
 echo "DAYS=\"$DAYS\" 	     # Container lifetime specified in days, removed after x days" 			>> $CONFIG
