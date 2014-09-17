@@ -8,7 +8,7 @@ FAILURE_COUNT=0
 TIME=$(date +"%s")
 DAYS=3 # Length of the event in days
 EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
-DB=/tmp/sandbox_db
+DB=/var/tmp/sandbox_db
 AVAILABLE_USER=1
 PW_LENGTH=4 # Not implemented
 
