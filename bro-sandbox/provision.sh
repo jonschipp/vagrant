@@ -20,9 +20,9 @@ EMAIL=user@company.com
 
 # System Configuration
 DOCKER_FILE="Dockerfile-2.3.1" 			# Build image from specific Dockerfile. Default builds Bro 2.3.1
-CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional)
-FS="ext4"					# Filesystem type for CONTAINER_DESTINATION
-IMAGE="jonschipp/latest-bro-sandbox" 		# Assign a different name to the image (optional). Must make same in sandbox scripts
+CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
+FS="ext4"					# Filesystem type for CONTAINER_DESTINATION, used for mounting
+IMAGE="bro-2.3.1"		 		# Assign a different name to the image (optional)
 USER="demo" 					# User account to create for that people will ssh into to enter container
 PASS="demo" 					# Password for the account that users will ssh into
 DB=/tmp/sandbox_db 				# Credentials database, must be readable by $USER
@@ -30,9 +30,11 @@ SCRIPTS_DIR=/usr/local/bin 			# Directory to install admin scripts
 CONFIG_DIR=/etc/sandbox 			# Directory to install configuration and scripts
 CONFIG="$CONFIG_DIR/sandbox.conf" 		# Global configuration file
 SHELL="$CONFIG_DIR/sandbox_shell"		# $USER's shell: displays login banner then launches sandbox_login
+LAUNCH_CONTAINER="$CONFIG_DIR/sandbox_login"	# User management script and container launcher
 BASENAME="brolive"				# Container prefix as $BASENAME.$USERNAME, used for re-attachment.
 
 # Container configuration (applies to each container)
+DAYS=3	       # Container lifetime specified in days, removed after x days
 VIRTUSER=demo  # Account used when container is entered (Must exist in container!)
 CPU=1          # Number of CPU's allocated to each container
 RAM=256m       # Amount of memory allocated to each container
@@ -251,11 +253,12 @@ echo "# System Configuration"		 									>> $CONFIG
 echo "IMAGE=\"$IMAGE\"       # Default: launch containers from this image" 					>> $CONFIG
 echo "CONFIG_DIR=\"$CONFIG_DIR\"" 	 									>> $CONFIG
 echo "SHELL=\"$SHELL\"       # User's shell: displays login banner then launches sandbox_login"    		>> $CONFIG
-echo "LAUNCH_CONTAINER=\"$CONFIG_DIR/sandbox_login\"    # Container management script"				>> $CONFIG
+echo "LAUNCH_CONTAINER=\"$LAUNCH_CONTAINER\"       # User management script and container launcher"		>> $CONFIG
 echo "DB=\"$DB\"             # Credentials database, must be readable by \$USER"				>> $CONFIG
 echo "BASENAME=\"$BASENAME\" # Container prefix as \$BASENAME.\$USERNAME, Used for re-attachment." 		>> $CONFIG
 echo 														>> $CONFIG
 echo "# Container Configuration"										>> $CONFIG
+echo "DAYS=\"$DAYS\" 	     # Container lifetime specified in days, removed after x days" 			>> $CONFIG
 echo "VIRTUSER=\"$VIRTUSER\" # Account used when container is entered (Must exist in container!)"		>> $CONFIG
 echo "CPU=\"$CPU\" 	     # Number of CPU's allocated to each container"					>> $CONFIG
 echo "RAM=\"$RAM\"           # Amount of memory allocated to each container"					>> $CONFIG
@@ -316,7 +319,7 @@ then
 			fi
 
 			if ! grep -q $CONTAINER_DESTINATION /etc/fstab 2>/dev/null; then
-				echo -e "${CONTAINER_DESTINATION}\t/var/lib/docker\t${FS}\tdefaults,noatime,nodiratime\t0\t1" >> /etc/fstab
+				echo -e "${CONTAINER_DESTINATION}\t/var/lib/docker\t${FS}\tdefaults,noatime,nodiratime,nobootwait\t0\t1" >> /etc/fstab
 			fi
                 fi
 
@@ -332,8 +335,8 @@ then
 		docker build -t $IMAGE - < $HOME/$DOCKER_FILE
 	else
 		docker pull jonschipp/latest-bro-sandbox
+		docker tag jonschipp/latest-bro-sandbox $IMAGE
 	fi
-	#docker commit $(docker ps -a -q | head -n 1) jonschipp/latest-bro-sandbox
 fi
 }
 

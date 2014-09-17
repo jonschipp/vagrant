@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
 # Destroy containers which are older than x days (weeks, months, or years also if they were missed)
 ARGC=$#
-
-argcheck() {
-if [ $ARGC -lt $1 ]; then
-        echo "Please specify an argument as the max. number of days for the container to exist"
+DAYS=3             # Overwritten by value in $CONFIG
+CONFIG=/etc/sandbox/sandbox.conf
+if [ -f $CONFIG ]; then
+        source $CONFIG
+else
+        echo "$CONFIG not found! Exiting..."
         exit 1
 fi
-}
 
-#argcheck 1
-
-source <(grep 'DAYS=' /usr/local/bin/sandbox_login)
-
-CONTAINERS=$(docker ps -a | grep -v -E 'trybro_data|bro_manager' | \
+CONTAINERS=$(docker ps -a | \
  awk -v remove=$DAYS 'BEGIN { FS="[ ]{3,}" } \
         $4 ~ /[0-9]+ day|week|month|year/ && count=substr($4,1,2) \
                 { 
