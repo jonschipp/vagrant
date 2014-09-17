@@ -256,6 +256,7 @@ echo "SHELL=\"$SHELL\"       # User's shell: displays login banner then launches
 echo "LAUNCH_CONTAINER=\"$LAUNCH_CONTAINER\"       # User management script and container launcher"		>> $CONFIG
 echo "DB=\"$DB\"             # Credentials database, must be readable by \$USER"				>> $CONFIG
 echo "BASENAME=\"$BASENAME\" # Container prefix as \$BASENAME.\$USERNAME, Used for re-attachment." 		>> $CONFIG
+echo "USER=\"$USER\"	     # User created during install, used for ssh (def: demo)"				>> $CONFIG
 echo 														>> $CONFIG
 echo "# Container Configuration"										>> $CONFIG
 echo "DAYS=\"$DAYS\" 	     # Container lifetime specified in days, removed after x days" 			>> $CONFIG

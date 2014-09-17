@@ -28,7 +28,8 @@ fi
 
 if [ ! -r $DB ]; then
         touch $DB
-	chmod 666 $DB
+	chown ${USER}:${USER} $DB
+	chmod 660 $DB
 fi
 
 function quit {
