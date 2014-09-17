@@ -47,7 +47,7 @@ Common Tasks:
   1. Specify the number of days for user account and container lifetime in:
 
 ```
-        $ grep ^DAYS /usr/local/bin/sandbox_login
+        $ grep ^DAYS /etc/sandbox/sandbox.conf
         DAYS=3 # Length of the event in days
 ```
 
@@ -58,7 +58,7 @@ Common Tasks:
   - System and use case dependent
 
 ```
-        $ grep -A 5 "Container config" /usr/local/bin/sandbox_login
+        $ grep -A 5 "Container config /etc/sandbox/sandbox.conf
 	## Container configuration (applies to each container)
 	VIRTUSER=demo  # Account used when container is entered (Must exist in container!)
 	CPU=1          # Number of CPU's allocated to each container
@@ -94,7 +94,7 @@ Common Tasks:
 
 * Custom greeting upon initial system login
 
-  1. Edit /usr/local/bin/sandbox_shell with the text of your liking
+  1. Edit /etc/sandbox/sandbox_shell with the text of your liking
 
 ```
         #!/usr/bin/env bash
@@ -112,23 +112,23 @@ Common Tasks:
         echo
         echo "A place to try out Bro."
         echo
-        
-        exec timeout 1m /usr/local/bin/sandbox_login
+
+	#########################################
+	exec timeout 1m $LAUNCH_CONTAINER $IMAGE
+	#########################################        
 ```
 
 * Custom login message for each user
 
-  1. Edit body of message function in /usr/local/bin/sandbox_login with the text of your liking
+  1. Edit the MOTD variable in /etc/sandbox/sandbox.conf with the text of your liking.
+     'echo -e' escape sequences work here.
 
 ```
-        function message {
-        MESSAGE=$1
-        echo
-        echo "$1"
-        echo "Training materials are located in /exercises."
-        echo "e.g. $ bro -r /exercises/BroCon14/beginner/http.pcap"
-        echo
-        }
+	$ grep -A 2 MOTD /etc/sandbox/sandbox.conf 
+	MOTD="
+	Training materials are located in /exercises
+	\te.g. $ bro -r /exercises/BroCon14/beginner/http.pcap\n"
+
 ```
 
 ## Demo
