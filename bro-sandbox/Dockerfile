@@ -9,7 +9,7 @@ ENV VIRTUSER demo
 # Specify Bro version to download and install (e.g. bro-2.2, bro-2.3)
 ENV BRO_VERSION bro-2.3.1
 # Place to install bro
-ENV DST ohome/$VIRTUSER/bro
+ENV DST /home/$VIRTUSER/bro
 
 RUN apt-get update
 RUN apt-get install -y build-essential cmake make gcc g++ flex bison libpcap-dev libgeoip-dev libssl-dev python-dev zlib1g-dev libmagic-dev swig2.0 wget
