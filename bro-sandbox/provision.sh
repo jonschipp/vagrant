@@ -23,7 +23,7 @@ DOCKER_FILE="Dockerfile" 			# Build image from specific Dockerfile. Defaults to 
 CUSTOM_IMAGE="no"				# no to pull image from Docker hub, yes to build image from $DOCKER_FILE if it exists
 CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
 FS="ext4"					# Filesystem type for CONTAINER_DESTINATION, used for mounting
-IMAGE="bro-2.3.1"		 		# Assign a different name to the image (optional)
+IMAGE="brolive"			 		# Assign a different name to the image (optional)
 USER="demo" 					# User account to create for that people will ssh into to enter container
 PASS="demo" 					# Password for the account that users will ssh into
 DB=/var/tmp/sandbox_db 				# Credentials database, must be readable by $USER
@@ -32,7 +32,7 @@ CONFIG_DIR=/etc/sandbox 			# Directory to install configuration and scripts
 CONFIG="$CONFIG_DIR/sandbox.conf" 		# Global configuration file
 SHELL="$CONFIG_DIR/sandbox_shell"		# $USER's shell: displays login banner then launches sandbox_login
 LAUNCH_CONTAINER="$CONFIG_DIR/sandbox_login"	# User management script and container launcher
-BASENAME="brolive"				# Container prefix as $BASENAME.$USERNAME, used for re-attachment.
+BASENAME="$IMAGE"				# Container prefix as $BASENAME.$USERNAME, used for re-attachment.
 MOTD="Training materials are in /exercises"	# Message of the day is displayed before container launch and reattachment
 
 # Container configuration (applies to each container)
@@ -338,8 +338,8 @@ then
 	if [ -e $HOME/$DOCKER_FILE ] && [[ "$CUSTOM_IMAGE" == "yes" ]]; then
 		docker build -t $IMAGE - < $HOME/$DOCKER_FILE
 	else
-		docker pull jonschipp/latest-bro-sandbox
-		docker tag jonschipp/latest-bro-sandbox $IMAGE
+		docker pull broplatform/brolive
+		docker tag broplatform/brolive $IMAGE
 	fi
 fi
 }
