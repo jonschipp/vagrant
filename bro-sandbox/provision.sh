@@ -43,6 +43,7 @@ RAM=256m       # Amount of memory allocated to each container
 HOSTNAME=bro   # Cosmetic: Will end up as $USER@$HOSTNAME:~$ in shell
 NETWORK=none   # Disable networking by default: none; Enable networking: bridge
 DNS=127.0.0.1  # Use loopback when networking is disabled to prevent error messages
+MOUNT="-v /exercises:/exercises:ro"	# Mount point(s), sep. by -v: /src:/dst:attributes, ro = readonly (avoid rw)
 
 # Get Ubuntu distribution information
 source /etc/lsb-release
@@ -264,6 +265,7 @@ echo "HOSTNAME=\"$HOSTNAME\" # Cosmetic: Will end up as \$USER@\$HOSTNAME:~\$ in
 echo "NETWORK=\"$NETWORK\"   # Disable networking by default: none; Enable networking: bridge"			>> $CONFIG
 echo "DNS=\"$DNS\"           # Use loopback when networking is disabled to prevent error messages"		>> $CONFIG
 echo "MOTD=\"$MOTD\"         # Message of the day is displayed before container launch and reattachment"	>> $CONFIG
+echo "MOUNT=\"$MOUNT\"	     # Mount point(s), sep. by -v: /src:/dst:attributes, ro = readonly (avoid rw)	>> $CONFIG
 
 fi
 }
