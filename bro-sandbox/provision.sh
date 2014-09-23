@@ -181,11 +181,6 @@ if [ ! -d $CONFIG_DIR ]; then
 	mkdir -p $CONFIG_DIR
 fi
 
-if ! grep -q sandbox /etc/shells
-then
-	sh -c "echo $SHELL >> /etc/shells"
-fi
-
 if ! getent passwd $USER 1>/dev/null
 then
 	adduser --disabled-login --gecos "" --shell $SHELL $USER
