@@ -1,5 +1,7 @@
 # Bro-Sandbox
 
+**Note**: This is deprecated in favor of [BroLive!](https://github.com/bro/bro-live) but this still works
+
 ````
 $ vagrant up
 ````
