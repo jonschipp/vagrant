@@ -398,6 +398,7 @@ fi
 
 sample_exercises() {
 local DIR=/exercises
+local url="http://www.bro.org/static/BroCon14/BroCon14.tar.gz"
 echo -e "Installing sample exercises!\n"
 if [ ! -d $DIR ]; then
 	mkdir /exercises
@@ -407,7 +408,7 @@ cd $DIR
 
 if [ ! -d $DIR/BroCon14 ]
 then
-	wget http://www.bro.org/static/BroCon14/BroCon14.tar.gz 2>/dev/null
+	wget $url 2>/dev/null
 	if [ $? -ne 0 ]; then
 		echo "$COUNT - Download for $url failed!"
 	else
