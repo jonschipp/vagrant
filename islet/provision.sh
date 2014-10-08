@@ -55,13 +55,10 @@ then
 	if [ -d islet ]
 	then
 		cd islet
-		make logo
-		make install
-		make install-docker
-		make user-config
-		make security-config
-		#make install-sample-distros
+		make install-docker && ./configure && make logo &&
+		make install && make user-config && make security-config
 		make install-brolive-config
+		#make install-sample-distros
 		#make install-sample-nsm
 	else
 		die "Clone of islet repo failed"
