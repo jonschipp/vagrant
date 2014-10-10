@@ -42,7 +42,7 @@ EOF
 
 function install_dependencies {
     # Install dependencies
-    apt-get update
+    apt-get update -qq
     apt-get -y install cowsay git language-pack-en libreadline-dev
 
     # Netsniff-NG

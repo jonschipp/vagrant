@@ -44,7 +44,7 @@ function hi {
 }
 
 install_dependencies(){
-apt-get update
+apt-get update -qq
 apt-get install -y cowsay git make
 }
 
