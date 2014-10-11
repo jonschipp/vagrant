@@ -3,12 +3,8 @@
 # Written for Ubuntu Saucy and Trusty, should be adaptable to other distros.
 
 ## Variables
-VAGRANT=/home/vagrant
-if [ -d $VAGRANT ]; then
-	HOME=/home/vagrant
-else
-	HOME=/root
-fi
+HOME=/root
+cd $HOME
 
 # Installation notification
 COWSAY=/usr/games/cowsay
