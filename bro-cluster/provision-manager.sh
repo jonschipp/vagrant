@@ -49,7 +49,7 @@ function install_dependencies {
     add-apt-repository ppa:agent-8131/ppa
 
     # Install dependencies
-    apt-get update
+    apt-get update -qq
     apt-get -y install cmake make gcc g++ flex bison \
     	libpcap-dev libssl-dev python-dev swig zlib1g-dev libmagic-dev && hi "Dependencies installed!"
 }

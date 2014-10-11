@@ -11,7 +11,7 @@ ENV BRO_VERSION bro-2.3.1
 # Place to install bro
 ENV DST /home/$VIRTUSER/bro
 
-RUN apt-get update
+RUN apt-get update -qq
 RUN apt-get install -y build-essential cmake make gcc g++ flex bison libpcap-dev libgeoip-dev libssl-dev python-dev zlib1g-dev libmagic-dev swig2.0 wget
 RUN apt-get install -y gawk vim emacs nano
 RUN adduser --disabled-password --gecos "" $VIRTUSER

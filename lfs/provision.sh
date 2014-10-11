@@ -11,7 +11,7 @@ touch /tmp/ran.provision.$(date +"%d-%m-%Y").shell
 echo "export LFS=/mnt/lfs" > /etc/profile.d/lfs.sh
 chmod 660 /etc/profile.d/lfs.sh
 
-apt-get update
+apt-get update -qq
 sudo apt-get install -y build-essential bison gawk vim util-linux expect
 
 # Download packages

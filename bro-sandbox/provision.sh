@@ -140,7 +140,7 @@ echo -e "$ORDER Installing Docker!\n"
 
 # Check that HTTPS transport is available to APT
 if [ ! -e /usr/lib/apt/methods/https ]; then
-	apt-get update
+	apt-get update -qq
 	apt-get install -y apt-transport-https
 	echo
 fi
@@ -157,7 +157,7 @@ fi
 # Install docker
 if ! command -v docker >/dev/null 2>&1
 then
-	apt-get update
+	apt-get update -qq
 	apt-get install -y lxc-docker
 	echo
 fi
