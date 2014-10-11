@@ -45,7 +45,7 @@ function hi {
 
 install_dependencies(){
 apt-get update -qq
-apt-get install -y cowsay git make
+apt-get install -yq cowsay git make
 }
 
 install_islet(){
@@ -59,7 +59,7 @@ then
 		make install && make user-config && make security-config
 		make install-brolive-config
 		#make install-sample-distros
-		#make install-sample-nsm
+		make install-sample-nsm
 	else
 		die "Clone of islet repo failed"
 	fi
