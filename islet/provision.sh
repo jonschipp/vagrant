@@ -41,7 +41,7 @@ function hi {
 
 install_dependencies(){
 apt-get update -qq
-apt-get install -y cowsay git make
+apt-get install -y cowsay git make sqlite pv
 }
 
 install_islet(){
