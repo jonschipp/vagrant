@@ -49,20 +49,19 @@ apt-get install -y cowsay git make
 }
 
 install_islet(){
+	
+git clone http://github.com/jonschipp/islet
+
 if ! [ -d islet ]
-then
-	git clone http://github.com/jonschipp/islet
-	if [ -d islet ]
-	then
-		cd islet
-		make install-docker && ./configure && make logo &&
-		make install && make user-config && make security-config
-		make install-brolive-config
-		#make install-sample-distros
-		#make install-sample-nsm
-	else
-		die "Clone of islet repo failed"
-	fi
+then 
+	die "Clone of islet repo failed"
+else
+	cd islet
+	make install-docker && ./configure && make logo &&
+	make install && make user-config && make security-config
+	make install-brolive-config
+	#make install-sample-distros
+	#make install-sample-nsm
 fi
 }
 
