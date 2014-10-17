@@ -41,7 +41,7 @@ function hi {
 
 install_dependencies(){
 apt-get update -qq
-apt-get install -y cowsay git make sqlite pv
+apt-get install -yq cowsay git make sqlite pv
 }
 
 install_islet(){
@@ -55,7 +55,7 @@ then
 		make install && make user-config && make security-config
 		make install-brolive-config
 		#make install-sample-distros
-		#make install-sample-nsm
+		make install-sample-nsm
 	else
 		die "Clone of islet repo failed"
 	fi
