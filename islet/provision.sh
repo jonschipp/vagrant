@@ -47,23 +47,17 @@ apt-get install -yq cowsay git make sqlite pv
 install_islet(){
 if ! [ -d islet ]
 then
-	git clone http://github.com/jonschipp/islet
-	if [ -d islet ]
-	then
-		cd islet
-		make install-docker && ./configure && make logo &&
-		make install && make user-config && make security-config
-		make install-brolive-config
-		#make install-sample-distros
-		make install-sample-nsm
-	else
-		die "Clone of islet repo failed"
-	fi
+	git clone http://github.com/jonschipp/islet || die "Clone of islet repo failed"
+	cd islet
+	make install-docker && ./configure && make logo &&
+	make install && make user-config && make security-config
+	make install-brolive-config
+	#make install-sample-distros
+	make install-sample-nsm
 fi
 }
 
 install_dependencies "1.)"
 install_islet "2.)"
 
-echo
-echo "Try it out: ssh -p 2222 $USER@127.0.0.1 -o UserKnownHostsFile=/dev/null"
+echo -e "\nTry it out: ssh -p 2222 $USER@127.0.0.1 -o UserKnownHostsFile=/dev/null"
