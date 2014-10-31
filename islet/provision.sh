@@ -49,8 +49,8 @@ if ! [ -d islet ]
 then
 	git clone http://github.com/jonschipp/islet || die "Clone of islet repo failed"
 	cd islet
-	make install-docker && ./configure && make logo &&
-	make install && make user-config && make security-config
+	make install-docker && make docker-config && ./configure && make logo &&
+	make install && make user-config && make security-config && make iptables-config
 	make install-brolive-config
 	#make install-sample-distros
 	make install-sample-nsm
