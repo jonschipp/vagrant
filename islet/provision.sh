@@ -50,6 +50,7 @@ monitoring(){
 apt-get update -qq
 apt-get install -yq collectd
 sed -i '/LoadPlugin network/s/^#//' /etc/collectd/collectd.conf
+sed -i "/^#Hostname/s/localhost/vagrant-$RANDOM/" /etc/collectd/collectd.conf
 cat <<EOF > /etc/collectd/collectd.conf.d/islet.conf
 <Plugin "network">
         Server "graphite.jonschipp.com" "25826"
