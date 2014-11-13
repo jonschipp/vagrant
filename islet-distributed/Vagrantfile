@@ -1,0 +1,56 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "trusty"
+  config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+
+  # 1.) Will not work after provision script is ran because of new kernel lacking guest additions
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+  # config.vm.synced_folder ".", "/vagrant"
+  # 2.) Will work becuase guest additions isn't a requirement
+  # config.vm.synced_folder ".", "/vagrant", type: "rsync",
+  # rsync__exclude: ".git/"
+  # rsync_auto: "true" # Detect and copy any changes automatically
+
+  config.vm.define "islet-proxy" do |islet-proxy|
+    islet-proxy.vm.hostname = "islet-proxy"
+    islet-proxy.vm.network "private_network", ip: "10.0.0.10", :netmask => "255.255.255.0", :adapter => 2
+    islet-proxy.vm.provision "shell", path: "provision.sh", privileged: "true", args: "1"
+    islet-proxy.vm.provider "virtualbox" do |vm1|
+      vm1.name = "islet-proxy"
+      vm1.customize ["modifyvm", :id, "--memory", "1024"]
+      vm1.customize ["modifyvm", :id, "--cpus", 1]
+      vm1.gui = false
+    end
+  end
+
+  config.vm.define "islet1" do |islet1|
+    islet1.vm.hostname = "islet1"
+    islet1.vm.network "private_network", ip: "10.0.0.20", :netmask => "255.255.255.0", :adapter => 2
+    islet1.vm.provision "shell", path: "provision.sh", privileged: "true", args: "1"
+    islet1.vm.provider "virtualbox" do |vm1|
+      vm1.name = "islet1"
+      vm1.customize ["modifyvm", :id, "--memory", "1024"]
+      vm1.customize ["modifyvm", :id, "--cpus", 1]
+      vm1.gui = false
+    end
+  end
+
+  config.vm.define "islet2" do |islet2|
+    islet2.vm.hostname = "islet2"
+    islet2.vm.network "private_network", ip: "10.0.0.30", :netmask => "255.255.255.0", :adapter => 2
+    islet2.vm.provision "shell", path: "provision.sh", privileged: "true", args: "1"
+    islet2.vm.provider "virtualbox" do |vm2|
+      vm2.name = "islet2"
+      vm2.customize ["modifyvm", :id, "--memory", "1024"]
+      vm2.customize ["modifyvm", :id, "--cpus", 1]
+      vm2.gui = false
+    end
+  end
+
+end
