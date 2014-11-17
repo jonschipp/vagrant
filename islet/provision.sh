@@ -15,47 +15,47 @@ LOGFILE=/root/islet_install.log
 EMAIL=user@company.com
 
 function die {
-    if [ -f ${COWSAY:-none} ]; then
-        $COWSAY -d "$*"
-    else
-        echo "$*"
-    fi
-    if [ -f $IRCSAY ]; then
-        ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
-    fi
-    echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
-    exit 1
+  if [ -f ${COWSAY:-none} ]; then
+    $COWSAY -d "$*"
+  else
+    echo "$*"
+  fi
+  if [ -f $IRCSAY ]; then
+    ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
+  fi
+  echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+  exit 1
 }
 
 function hi {
-    if [ -f ${COWSAY:-none} ]; then
-        $COWSAY "$*"
-    else
-        echo "$*"
-    fi
-    if [ -f $IRCSAY ]; then
-        ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
-    fi
-    echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+  if [ -f ${COWSAY:-none} ]; then
+    $COWSAY "$*"
+  else
+    echo "$*"
+  fi
+  if [ -f $IRCSAY ]; then
+    ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
+  fi
+  echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
 }
 
 install_dependencies(){
-apt-get update -qq
-apt-get install -yq cowsay git make sqlite pv
+  apt-get update -qq
+  apt-get install -yq cowsay git make sqlite pv
 }
 
 monitoring(){
-# Yes, I want to get your stats to see how ISLET performs
-# and you can view them too: http://graphite.jonschipp.com:8080/
-apt-get update -qq
-apt-get install -yq collectd
-sed -i '/LoadPlugin network/s/^#//' /etc/collectd/collectd.conf
-sed -i "/^#Hostname/s/localhost/vagrant-$RANDOM/" /etc/collectd/collectd.conf
-sed -i "/^#Hostname/s/#//" /etc/collectd/collectd.conf
-sed -i "/^FQDNLookup/s/true/false/" /etc/collectd/collectd.conf
+  # Yes, I want to get your stats to see how ISLET performs
+  # and you can view them too: http://graphite.jonschipp.com:8080/
+  apt-get update -qq
+  apt-get install -yq collectd
+  sed -i '/LoadPlugin network/s/^#//' /etc/collectd/collectd.conf
+  sed -i "/^#Hostname/s/localhost/vagrant-$RANDOM/" /etc/collectd/collectd.conf
+  sed -i "/^#Hostname/s/#//" /etc/collectd/collectd.conf
+  sed -i "/^FQDNLookup/s/true/false/" /etc/collectd/collectd.conf
 cat <<EOF > /etc/collectd/collectd.conf.d/islet.conf
 <Plugin "network">
-        Server "graphite.jonschipp.com" "25826"
+    Server "graphite.jonschipp.com" "25826"
 </Plugin>
 
 LoadPlugin syslog
@@ -87,20 +87,20 @@ LoadPlugin uptime
 LoadPlugin users
 LoadPlugin vmem
 EOF
-service collectd restart
+  service collectd restart
 }
 
 install_islet(){
-if ! [ -d islet ]
-then
-	git clone http://github.com/jonschipp/islet || die "Clone of islet repo failed"
-	cd islet
-	make install-docker && make docker-config && ./configure && make logo &&
-	make install && make user-config && make security-config && make iptables-config
-	make install-brolive-config
-	#make install-sample-distros
-	make install-sample-nsm
-fi
+  if ! [ -d islet ]
+  then
+    git clone http://github.com/jonschipp/islet || die "Clone of islet repo failed"
+    cd islet
+    make install-docker && make docker-config && ./configure && make logo &&
+    make install && make user-config && make security-config && make iptables-config
+    make install-brolive-config
+    #make install-sample-distros
+    make install-sample-nsm
+  fi
 }
 
 install_dependencies "1.)"

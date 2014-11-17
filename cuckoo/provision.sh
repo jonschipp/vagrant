@@ -17,80 +17,80 @@ EMAIL=user@company.com
 cd $HOME
 
 function die {
-if [ -f ${COWSAY:-none} ]; then
-	$COWSAY -d "$*"
-else
-	echo "$*"
-fi
-if [ -f $IRCSAY ]; then
-	( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
-fi
-echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
-exit 1
+  if [ -f ${COWSAY:-none} ]; then
+    $COWSAY -d "$*"
+  else
+    echo "$*"
+  fi
+  if [ -f $IRCSAY ]; then
+    ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
+  fi
+  echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+  exit 1
 }
 
 function hi {
-if [ -f ${COWSAY:-none} ]; then
-	$COWSAY "$*"
-else
-	echo "$*"
-fi
-if [ -f $IRCSAY ]; then
-	( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
-fi
-echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+  if [ -f ${COWSAY:-none} ]; then
+    $COWSAY "$*"
+  else
+    echo "$*"
+  fi
+  if [ -f $IRCSAY ]; then
+    ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
+  fi
+  echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
 }
 
 install_dependencies(){
-echo "$1 $FUNCNAME"
-apt-get update -qq
-# Required
-apt-get install -yq python python-sqlalchemy python-bson git
-# Recommended
-apt-get intall -yq python-dpkt python-jinja2
-# Optional
-apt-get install -yq yara python-yara python-magic python-pymongo python-gridfs python-libvirt \
-			python-bottle python-pefile python-chardet volatility tcpdump libcap2-bin
-			# maec, pydeep
-# Virtualization
-apt-get install -yq qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
-echo "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib non-free" > /etc/apt/sources.list.d/virtualbox.list &&
-wget -q http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc -O - | sudo apt-key add - &&
-sudo apt-get update && sudo apt-get install -yq virtualbox-4.3 dkms
-}
+  echo "$1 $FUNCNAME"
+  apt-get update -qq
+  # Required
+  apt-get install -yq python python-sqlalchemy python-bson git
+  # Recommended
+  apt-get intall -yq python-dpkt python-jinja2
+  # Optional
+  apt-get install -yq yara python-yara python-magic python-pymongo python-gridfs python-libvirt \
+    python-bottle python-pefile python-chardet volatility tcpdump libcap2-bin
+    # maec, pydeep
+  # Virtualization
+  apt-get install -yq qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
+  echo "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib non-free" > /etc/apt/sources.list.d/virtualbox.list &&
+  wget -q http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc -O - | sudo apt-key add - &&
+  sudo apt-get update && sudo apt-get install -yq virtualbox-4.3 dkms
+  }
 
 configure_dependencies(){
-echo "$1 $FUNCNAME"
-if ! getcap /usr/sbin/tcpdump | grep -q cap_net_admin,cap_net_raw
-then
-	setcap cap_net_raw,cap_net_admin=eip /usr/sbin/tcpdump
-fi
+  echo "$1 $FUNCNAME"
+  if ! getcap /usr/sbin/tcpdump | grep -q cap_net_admin,cap_net_raw
+  then
+    setcap cap_net_raw,cap_net_admin=eip /usr/sbin/tcpdump
+  fi
 }
 
 configure_users(){
-echo "$1 $FUNCNAME"
-getent passwd cuckoo 1>/dev/null 	|| adduser --disabled-password  --gecos "" --shell /bin/bash cuckoo
-getent group vboxusers | grep -q cuckoo || usermod -G vboxusers cuckoo
-getent group libvirtd | grep -q cuckoo  || usermod -G libvirtd cuckoo
+  echo "$1 $FUNCNAME"
+  getent passwd cuckoo 1>/dev/null 	|| adduser --disabled-password  --gecos "" --shell /bin/bash cuckoo
+  getent group vboxusers | grep -q cuckoo || usermod -G vboxusers cuckoo
+  getent group libvirtd | grep -q cuckoo  || usermod -G libvirtd cuckoo
 }
 
 install_cuckoo(){
-echo "$1 $FUNCNAME"
-if ! [ -d $PREFIX ]
-then
-	git clone git://github.com/cuckoobox/cuckoo.git $PREFIX || die "Clone of islet repo failed"
-fi
+  echo "$1 $FUNCNAME"
+  if ! [ -d $PREFIX ]
+  then
+    git clone git://github.com/cuckoobox/cuckoo.git $PREFIX || die "Clone of islet repo failed"
+  fi
 }
 
 configure_cuckoo(){
-echo "$1 $FUNCNAME"
-#sed -i '/^machinery/s/virtualbox/kvm/' $PREFIX/conf/cuckoo.conf
-sed -i '/^memory_dump/s/off/on/' $PREFIX/conf/cuckoo.conf
-sed -i '/^terminate_processes/s/off/on/' $PREFIX/conf/cuckoo.conf
-sed -i '/^freespace/s/64/512/' $PREFIX/conf/cuckoo.conf
-sed -i '/^ip =/s/192\.168\.56\.1/0.0.0.0/' $PREFIX/conf/cuckoo.conf
-sed -i '/^resolve_dns/s/on/off/' $PREFIX/conf/cuckoo.conf
-sed -i '/^# bpf/s/^#//' $PREFIX/conf/auxiliary.conf
+  echo "$1 $FUNCNAME"
+  #sed -i '/^machinery/s/virtualbox/kvm/' $PREFIX/conf/cuckoo.conf
+  sed -i '/^memory_dump/s/off/on/' $PREFIX/conf/cuckoo.conf
+  sed -i '/^terminate_processes/s/off/on/' $PREFIX/conf/cuckoo.conf
+  sed -i '/^freespace/s/64/512/' $PREFIX/conf/cuckoo.conf
+  sed -i '/^ip =/s/192\.168\.56\.1/0.0.0.0/' $PREFIX/conf/cuckoo.conf
+  sed -i '/^resolve_dns/s/on/off/' $PREFIX/conf/cuckoo.conf
+  sed -i '/^# bpf/s/^#//' $PREFIX/conf/auxiliary.conf
 }
 
 install_dependencies "1.)"
