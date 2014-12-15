@@ -1,0 +1,18 @@
+127.0.0.1 localhost localhost.localdomain
+
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+# Ganeti cluster name
+10.2.2.5 xen-cluster.test xen-cluster cluster
+
+# Ganeti hosts
+10.2.2.10 xen-node1.test xen-node1 node1
+10.2.2.20 xen-node2.test xen-node2 node2
+
+# Test VM's
+10.2.2.30 instance1
+10.2.2.31 instance2
+10.2.2.32 instance3

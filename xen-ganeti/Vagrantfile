@@ -1,0 +1,72 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "trusty"
+  config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+  node1_disk   = './node1.vdi'
+  node2_disk   = './node2.vdi'
+
+  # 1.) Will not work after provision script is ran because of new kernel lacking guest additions
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+  # config.vm.synced_folder ".", "/vagrant"
+  # 2.) Will work becuase guest additions isn't a requirement
+  # config.vm.synced_folder ".", "/vagrant", type: "rsync",
+  # rsync__exclude: ".git/"
+  # rsync_auto: "true" # Detect and copy any changes automatically
+
+  config.vm.define "node1" do |node1|
+    node1.vm.hostname = "xen-node1"
+    node1.vm.network "private_network", ip: "10.2.2.10", :netmask => "255.255.255.0", :adapter => 2
+    node1.vm.network "private_network", ip: "192.168.1.10", :netmask => "255.255.255.0", :adapter => 3
+    node1.vm.provision "file", source: "id_rsa", destination: "id_rsa"
+    node1.vm.provision "file", source: "id_rsa.pub", destination: "id_rsa.pub"
+    node1.vm.provision "file", source: "authorized_keys", destination: "authorized_keys"
+    node1.vm.provision "file", source: "interfaces-node1", destination: "interfaces-node1"
+    node1.vm.provision "file", source: "hosts", destination: "hosts"
+    node1.vm.provision "file", source: "modules", destination: "modules"
+    node1.vm.provision "file", source: "xend-config.sxp", destination: "xend-config.sxp"
+    node1.vm.provision "file", source: "lvm.conf", destination: "lvm.conf"
+    node1.vm.provision "shell", path: "provision.sh", privileged: "true"
+    node1.vm.provider "virtualbox" do |vm1|
+      vm1.name = "node1"
+      vm1.customize ["modifyvm", :id, "--memory", "2048"]
+      vm1.customize ["modifyvm", :id, "--cpus", 2]
+      vm1.customize ["modifyvm", :id, "--audio", "none", "--usb", "on", "--usbehci", "off"]
+      unless File.exist?(node1_disk)
+        vm1.customize ['createhd', '--filename', node1_disk, '--size', 100000]
+      end
+      vm1.customize ['storageattach', :id, '--storagectl', 'SATAController', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', node1_disk]
+      vm1.gui = false
+    end
+  end
+
+  config.vm.define "node2" do |node2|
+    node2.vm.hostname = "xen-node2"
+    node2.vm.network "private_network", ip: "10.2.2.20", :netmask => "255.255.255.0", :adapter => 2
+    node2.vm.network "private_network", ip: "192.168.1.20", :netmask => "255.255.255.0", :adapter => 3
+    node2.vm.provision "file", source: "id_rsa.pub", destination: "id_rsa.pub"
+    node2.vm.provision "file", source: "interfaces-node2", destination: "interfaces-node2"
+    node2.vm.provision "file", source: "hosts", destination: "hosts"
+    node2.vm.provision "file", source: "modules", destination: "modules"
+    node2.vm.provision "file", source: "xend-config.sxp", destination: "xend-config.sxp"
+    node2.vm.provision "file", source: "lvm.conf", destination: "lvm.conf"
+    node2.vm.provision "shell", path: "provision.sh", privileged: "true"
+    node2.vm.provider "virtualbox" do |vm2|
+      vm2.name = "node2"
+      vm2.customize ["modifyvm", :id, "--memory", "2048"]
+      vm2.customize ["modifyvm", :id, "--cpus", 2]
+      vm2.customize ["modifyvm", :id, "--audio", "none", "--usb", "on", "--usbehci", "off"]
+      unless File.exist?(node2_disk)
+        vm2.customize ['createhd', '--filename', node2_disk, '--size', 100000]
+      end
+      vm2.customize ['storageattach', :id, '--storagectl', 'SATAController', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', node2_disk]
+      vm2.gui = false
+    end
+  end
+
+end

@@ -10,7 +10,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.boot_timeout = 300
   #config.vm.box_url = "http://jonschipp.com/vm/seconion1204.box"
   config.vm.box_url = "https://uofi.box.com/shared/static/g9c863bd70f84j2yu9x1.box"
-  
+
   # Checksums for the box seconion1204.box:
   # md5sum:  11f60efb9cdb67d77192d9f313e86518
   # sha1sum: 64a52128b8b45edb9f85ce448c6ac128159ba840
@@ -43,7 +43,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
      unless File.exist?(nsm_disk)
      	v.customize ['createhd', '--filename', nsm_disk, '--size', 100000]
      end
-     v.customize ['storageattach', :id, '--storagectl', 'SATA', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', nsm_disk]
+     v.customize ['storageattach', :id, '--storagectl', 'SATAController', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', nsm_disk]
    end
 
   # Shell script to provision machine
