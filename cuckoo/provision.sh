@@ -47,16 +47,19 @@ install_dependencies(){
   # Required
   apt-get install -yq python python-sqlalchemy python-bson git
   # Recommended
-  apt-get intall -yq python-dpkt python-jinja2
+  apt-get install -yq python-dpkt python-jinja2
   # Optional
   apt-get install -yq yara python-yara python-magic python-pymongo python-gridfs python-libvirt \
     python-bottle python-pefile python-chardet volatility tcpdump libcap2-bin
     # maec, pydeep
   # Virtualization
-  apt-get install -yq qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
-  echo "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib non-free" > /etc/apt/sources.list.d/virtualbox.list &&
-  wget -q http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc -O - | sudo apt-key add - &&
-  sudo apt-get update && sudo apt-get install -yq virtualbox-4.3 dkms
+  if egrep -q '(vmx|svm)' /proc/cpuinfo; then
+    apt-get install -yq qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
+  else
+    echo "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib non-free" > /etc/apt/sources.list.d/virtualbox.list
+    wget -q http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc -O - | sudo apt-key add -
+    apt-get update && apt-get install -yq virtualbox-4.3 dkms
+  fi
   }
 
 configure_dependencies(){
@@ -69,9 +72,10 @@ configure_dependencies(){
 
 configure_users(){
   echo "$1 $FUNCNAME"
-  getent passwd cuckoo 1>/dev/null 	|| adduser --disabled-password  --gecos "" --shell /bin/bash cuckoo
-  getent group vboxusers | grep -q cuckoo || usermod -G vboxusers cuckoo
-  getent group libvirtd | grep -q cuckoo  || usermod -G libvirtd cuckoo
+  getent passwd cuckoo 1>/dev/null 	  || adduser --disabled-password  --gecos "" --shell /bin/bash cuckoo
+  getent group vboxusers | grep -q cuckoo || usermod -a -G vboxusers cuckoo 2>/dev/null
+  getent group libvirtd  | grep -q cuckoo || usermod -a -G libvirtd cuckoo 2>/dev/null
+  getent group kvm       | grep -q cuckoo || usermod -a -G kvm cuckoo 2>/dev/null
 }
 
 install_cuckoo(){
