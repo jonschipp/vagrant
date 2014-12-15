@@ -41,12 +41,12 @@ function install_dependencies {
 function system_configuration {
     cd $HOME
     # System and network configuration
-
-    # Bug: https://bugs.launchpad.net/ubuntu/+source/ganeti/+bug/1308571
-    echo "service ssh restart" > /etc/init.d/ssh
-
+    ! grep -s -q dom0_mem=512 /etc/default/grub.d/xen.cfg && \
+      sed -i '1s/^/GRUB_CMDLINE_XEN_DEFAULT="dom0_mem=512M,max:512M dom0_max_vcpus=1,dom0_vcpus_pin"/' /etc/default/grub.d/xen.cfg && \
+        update-grub2
+    echo "service ssh restart" > /etc/init.d/ssh # Bug: https://bugs.launchpad.net/ubuntu/+source/ganeti/+bug/1308571
     echo "${HOSTNAME}.test" > /etc/hostname
-
+    sed -i -e '/#autoballoon/s/^#//' -e '/^autoballoon/s/auto/off/2' /etc/xen/xl.conf
     ln -f -s /boot/vmlinuz-$(uname -r) /boot/vmlinuz-3-xenU
     ln -f -s /boot/initrd.img-$(uname -r) /boot/initrd-3-xenU
 
@@ -95,5 +95,3 @@ lsmod | grep -q drbd && echo "Initializing cluster!" && \
   gnt-cluster init --enabled-hypervisors=xen-pvm --hypervisor-parameters xen-pvm:xen_cmd=xl --vg-name ganeti --nic-parameters link=xenbr0 \
    --master-netdev eth2 --secondary-ip 192.168.1.10 --backend-parameters vcpus=1,memory=128M xen-cluster.test && \
   echo  "Add a node to the cluster: gnt-node add -v -d -s 192.168.1.20 xen-node2.test"
-
-reboot
