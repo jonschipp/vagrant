@@ -1,13 +1,7 @@
-  #!/bin/bash
-
+#!/bin/bash
 # We start here
 HOME=/home/vagrant
 ARG=${1:-0}
-# Get latest stable linux kernel
-LATEST_STABLE_KERNEL_URL=http://www.kernel.org/$(wget -O - https://www.kernel.org 2>/dev/null | grep -A 5 "Latest Stable Kernel" | awk -F '[""]' '/\.xz/ { print $2 }')
-KERNEL=$(echo $LATEST_STABLE_KERNEL_URL | sed 's/.*\///;s/\.tar.*$//')
-CURRENT=$(echo $(uname -r) | sed 's/-.*//;s/^/linux-/')
-UPDATE=$ARG
 BPF=0
 COWSAY=/usr/games/cowsay
 cd $HOME
@@ -41,12 +35,16 @@ function install_dependencies {
 function system_configuration {
     cd $HOME
     # System and network configuration
-    ! grep -s -q dom0_mem=512 /etc/default/grub.d/xen.cfg && \
-      sed -i '1s/^/GRUB_CMDLINE_XEN_DEFAULT="dom0_mem=512M,max:512M dom0_max_vcpus=1,dom0_vcpus_pin"/' /etc/default/grub.d/xen.cfg && \
+     ! grep -s -q dom0_mem=512 /etc/default/grub.d/xen.cfg && \
+       sed -i '1s/^/GRUB_CMDLINE_XEN_DEFAULT="dom0_mem=512M,max:512M dom0_max_vcpus=1 dom0_vcpus_pin=1"/' /etc/default/grub.d/xen.cfg && \
         update-grub2
     echo "service ssh restart" > /etc/init.d/ssh # Bug: https://bugs.launchpad.net/ubuntu/+source/ganeti/+bug/1308571
     echo "${HOSTNAME}.test" > /etc/hostname
     sed -i -e '/#autoballoon/s/^#//' -e '/^autoballoon/s/auto/off/2' /etc/xen/xl.conf
+    sed -i '/dowait 120/d'  /etc/init/cloud-init-nonet.conf
+    sed -i 's/dowait/10/2/' /etc/init/cloud-init-nonet.conf
+    sed -i '/sleep 40/d' /etc/init/failsafe.conf
+    sed -i '/sleep 59/d' /etc/init/failsafe.conf
     ln -f -s /boot/vmlinuz-$(uname -r) /boot/vmlinuz-3-xenU
     ln -f -s /boot/initrd.img-$(uname -r) /boot/initrd-3-xenU
 
@@ -65,16 +63,14 @@ function system_configuration {
     if [ -e $HOME/lvm.conf ]; then
         install -o root -g root -m 644 $HOME/lvm.conf /etc/xen/lvm.conf
     fi
-    if [ -e $HOME/authorized_keys ]; then
-        install -o root -g root -m 600 $HOME/authorized_keys /root/.ssh/authorized_keys
+    if [ -e $HOME/id_dsa.pub ]; then
+        install -o root -g root -m 600 $HOME/id_dsa.pub /root/.ssh/authorized_keys
     fi
-    if [ -e $HOME/id_rsa.pub ]; then
-        install -o root -g root -m 600 $HOME/id_rsa.pub /root/.ssh/authorized_keys
+    if [ -e $HOME/id_dsa ]; then
+        install -o root -g root -m 600 $HOME/id_dsa /root/.ssh/id_dsa
+        install -o root -g root -m 600 $HOME/id_dsa.pub /root/.ssh/id_dsa.pub
     fi
-    if [ -e $HOME/id_rsa ]; then
-        install -o root -g root -m 600 $HOME/id_rsa /root/.ssh/id_rsa
-        install -o root -g root -m 600 $HOME/id_rsa.pub /root/.ssh/id_rsa.pub
-    fi
+    ufw disable
     lvm_configuration
     hi "Everything ran! Time for a reboot"
 }
@@ -91,7 +87,12 @@ if ! which xen 2>&1 > /dev/null; then
         system_configuration
 fi
 
-lsmod | grep -q drbd && echo "Initializing cluster!" && \
-  gnt-cluster init --enabled-hypervisors=xen-pvm --hypervisor-parameters xen-pvm:xen_cmd=xl --vg-name ganeti --nic-parameters link=xenbr0 \
-   --master-netdev eth2 --secondary-ip 192.168.1.10 --backend-parameters vcpus=1,memory=128M xen-cluster.test && \
-  echo  "Add a node to the cluster: gnt-node add -v -d -s 192.168.1.20 xen-node2.test"
+cat <<EOF
+Run these commands on node1 to create the cluster:
+$ vagrant ssh node1
+$ gnt-cluster init --enabled-hypervisors=xen-pvm --hypervisor-parameters xen-pvm:xen_cmd=xl --vg-name ganeti --nic-parameters link=xenbr0 \
+--master-netdev eth2 --secondary-ip 192.168.1.10 --backend-parameters vcpus=1,minmem=64,maxmem=256M,always_failover=true xen-cluster.test
+$ gnt-node add -v -d -s 192.168.1.20 xen-node2.test
+EOF
+
+reboot
