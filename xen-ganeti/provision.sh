@@ -1,6 +1,7 @@
 #!/bin/bash
 # We start here
 HOME=/home/root
+VAGRANT=/home/vagrant
 ARG=${1:-0}
 BPF=0
 COWSAY=/usr/games/cowsay
@@ -49,20 +50,20 @@ function system_configuration {
     ln -f -s /boot/vmlinuz-$(uname -r) /boot/vmlinuz-3-xenU
     ln -f -s /boot/initrd.img-$(uname -r) /boot/initrd-3-xenU
 
-    if [ -e $HOME/interfaces* ]; then
-        install -o root -g root -m 644 $HOME/interfaces* /etc/network/interfaces.d/xen.cfg
+    if [ -e $VAGRANT/interfaces* ]; then
+        install -o root -g root -m 644 $VAGRANT/interfaces* /etc/network/interfaces.d/xen.cfg
     fi
-    if [ -e $HOME/hosts ]; then
-        install -o root -g root -m 644 $HOME/hosts /etc/hosts
+    if [ -e $VAGRANT/hosts ]; then
+        install -o root -g root -m 644 $VAGRANT/hosts /etc/hosts
     fi
-    if [ -e $HOME/modules ]; then
-        install -o root -g root -m 644 $HOME/modules /etc/modules
+    if [ -e $VAGRANT/modules ]; then
+        install -o root -g root -m 644 $VAGRANT/modules /etc/modules
     fi
-    if [ -e $HOME/xend-config.sxp ]; then
-        install -o root -g root -m 644 $HOME/xend-config.sxp /etc/xen/xend-config.sxp
+    if [ -e $VAGRANT/xend-config.sxp ]; then
+        install -o root -g root -m 644 $VAGRANT/xend-config.sxp /etc/xen/xend-config.sxp
     fi
-    if [ -e $HOME/lvm.conf ]; then
-        install -o root -g root -m 644 $HOME/lvm.conf /etc/xen/lvm.conf
+    if [ -e $VAGRANT/lvm.conf ]; then
+        install -o root -g root -m 644 $VAGRANT/lvm.conf /etc/xen/lvm.conf
     fi
     ssh_configuration
     ufw disable
