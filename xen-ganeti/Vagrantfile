@@ -23,8 +23,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     node1.vm.hostname = "xen-node1"
     node1.vm.network "private_network", ip: "10.2.2.10", :netmask => "255.255.255.0", :adapter => 2
     node1.vm.network "private_network", ip: "192.168.1.10", :netmask => "255.255.255.0", :adapter => 3
-    node1.vm.provision "file", source: "id_dsa", destination: "id_dsa"
-    node1.vm.provision "file", source: "id_dsa.pub", destination: "id_dsa.pub"
     node1.vm.provision "file", source: "interfaces-node1", destination: "interfaces-node1"
     node1.vm.provision "file", source: "hosts", destination: "hosts"
     node1.vm.provision "file", source: "modules", destination: "modules"
@@ -48,7 +46,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     node2.vm.hostname = "xen-node2"
     node2.vm.network "private_network", ip: "10.2.2.20", :netmask => "255.255.255.0", :adapter => 2
     node2.vm.network "private_network", ip: "192.168.1.20", :netmask => "255.255.255.0", :adapter => 3
-    node2.vm.provision "file", source: "id_dsa.pub", destination: "id_dsa.pub"
     node2.vm.provision "file", source: "interfaces-node2", destination: "interfaces-node2"
     node2.vm.provision "file", source: "hosts", destination: "hosts"
     node2.vm.provision "file", source: "modules", destination: "modules"
