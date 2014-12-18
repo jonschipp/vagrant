@@ -44,52 +44,6 @@ install_dependencies(){
   apt-get install -yq cowsay git make sqlite pv
 }
 
-monitoring(){
-  # Yes, I want to get your stats to see how ISLET performs
-  # and you can view them too: http://graphite.jonschipp.com:8080/
-  apt-get update -qq
-  apt-get install -yq collectd
-  sed -i '/LoadPlugin network/s/^#//' /etc/collectd/collectd.conf
-  sed -i "/^#Hostname/s/localhost/vagrant-$RANDOM/" /etc/collectd/collectd.conf
-  sed -i "/^#Hostname/s/#//" /etc/collectd/collectd.conf
-  sed -i "/^FQDNLookup/s/true/false/" /etc/collectd/collectd.conf
-cat <<EOF > /etc/collectd/collectd.conf.d/islet.conf
-<Plugin "network">
-    Server "graphite.jonschipp.com" "25826"
-</Plugin>
-
-LoadPlugin syslog
-LoadPlugin battery
-LoadPlugin cgroups
-LoadPlugin conntrack
-LoadPlugin contextswitch
-LoadPlugin cpu
-LoadPlugin cpufreq
-LoadPlugin df
-LoadPlugin disk
-LoadPlugin entropy
-LoadPlugin ethstat
-LoadPlugin exec
-LoadPlugin filecount
-LoadPlugin interface
-LoadPlugin iptables
-LoadPlugin irq
-LoadPlugin load
-LoadPlugin lvm
-LoadPlugin memory
-LoadPlugin netlink
-LoadPlugin processes
-LoadPlugin protocols
-LoadPlugin swap
-LoadPlugin tcpconns
-LoadPlugin unixsock
-LoadPlugin uptime
-LoadPlugin users
-LoadPlugin vmem
-EOF
-  service collectd restart
-}
-
 install_islet(){
   if ! [ -d islet ]
   then
@@ -105,7 +59,5 @@ install_islet(){
 
 install_dependencies "1.)"
 install_islet "2.)"
-# Comment out if you don't want to send me your system's data.
-monitoring "3.)"
 
 echo -e "\nTry it out: ssh -p 2222 $USER@127.0.0.1 -o UserKnownHostsFile=/dev/null"
