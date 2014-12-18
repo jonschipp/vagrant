@@ -1,11 +1,12 @@
 #!/bin/bash
 # We start here
-HOME=/home/vagrant
+HOME=/home/root
 ARG=${1:-0}
 BPF=0
 COWSAY=/usr/games/cowsay
 cd $HOME
 
+# /usr/lib/ganeti/tools/burnin -v -d -o debootstrap+default --disk-size=1024m --mem-size=128m -p instance1
 function die {
     $COWSAY -d "$* MooOoOOoo"
     exit 1
@@ -63,16 +64,39 @@ function system_configuration {
     if [ -e $HOME/lvm.conf ]; then
         install -o root -g root -m 644 $HOME/lvm.conf /etc/xen/lvm.conf
     fi
-    if [ -e $HOME/id_dsa.pub ]; then
-        install -o root -g root -m 600 $HOME/id_dsa.pub /root/.ssh/authorized_keys
-    fi
-    if [ -e $HOME/id_dsa ]; then
-        install -o root -g root -m 600 $HOME/id_dsa /root/.ssh/id_dsa
-        install -o root -g root -m 600 $HOME/id_dsa.pub /root/.ssh/id_dsa.pub
-    fi
+    ssh_configuration
     ufw disable
     lvm_configuration
     hi "Everything ran! Time for a reboot"
+}
+
+function ssh_configuration {
+SSH=$HOME/.ssh
+cat <<EOF > $SSH/known_hosts
+|1|wCuhVl1I0CngsoebC3ocaiiMWB4=|zQU6X90gpDUdXzrE7s6kpOQQNL0= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBNqKwGOU6Vxuhb013C8Wvmaxl6uJ6+YobkKgWDp5l/k6G5fg7BrWibnc3CiKTN+wH0RW6WYk2AeUvXFWASDxpmM=
+|1|sUP7jPO2XR+Wsu3jzspJhufLHNE=|r/FpqGK+yZC+MQdaps9oIUzV4xs= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBNqKwGOU6Vxuhb013C8Wvmaxl6uJ6+YobkKgWDp5l/k6G5fg7BrWibnc3CiKTN+wH0RW6WYk2AeUvXFWASDxpmM=
+EOF
+cat <<EOF > $SSH/id_dsa.pub
+ssh-dss AAAAB3NzaC1kc3MAAACBAIHNYzf38A+PHIpSYd7B78XAUnnqTWtxGON4LRCcGOk4aDfY5FF7B5v5ywLBb6HBQZ0oVur/cW87r0Cj9yP56haZtq09JIBAywWpIKnWkE5+gzs62IDq7mXxvmx3sNArpvbGfzCV9yY3hdeEHqYtwI6fOygb1hRR52XfoIso7EADAAAAFQCSxXJGVzoHeuGTR49pYRKyaNjVjwAAAIBJSo/c9iBCIKvrKUHbnA2EohG4B1K6PFUX6OLCeqVlzDZHwaYXHDQnrSSOmqK8RyttsGhWEC16kp8bc/ldm/xQuGmaXqqtk9mS9MGDAeJgXx3lD5XkIYbrypSGSuVG5UtC6nFKxbWklEF0rSvm+yDnyaoKlYkA6+52ngx85bT10wAAAIBh7YhYuy6YHilCcbkAa0UvVu6Lds+nqnh+jdc4A+Phijt3i8q6/yDJj0WhM9TVgo7TKzbe7/SpzU98gdY2bOxZd1xNjFyquVEP92+LAm+s/OCbU7n3g43EWKfq5M6fpIPtXzEOFMRuOncg7EEGywDz3cyaCD+mtuI6hF3beG0ntA== jonschipp@WordOfMouf.local
+EOF
+cat <<EOF > $SSH/authorized_keys
+ssh-dss AAAAB3NzaC1kc3MAAACBAIHNYzf38A+PHIpSYd7B78XAUnnqTWtxGON4LRCcGOk4aDfY5FF7B5v5ywLBb6HBQZ0oVur/cW87r0Cj9yP56haZtq09JIBAywWpIKnWkE5+gzs62IDq7mXxvmx3sNArpvbGfzCV9yY3hdeEHqYtwI6fOygb1hRR52XfoIso7EADAAAAFQCSxXJGVzoHeuGTR49pYRKyaNjVjwAAAIBJSo/c9iBCIKvrKUHbnA2EohG4B1K6PFUX6OLCeqVlzDZHwaYXHDQnrSSOmqK8RyttsGhWEC16kp8bc/ldm/xQuGmaXqqtk9mS9MGDAeJgXx3lD5XkIYbrypSGSuVG5UtC6nFKxbWklEF0rSvm+yDnyaoKlYkA6+52ngx85bT10wAAAIBh7YhYuy6YHilCcbkAa0UvVu6Lds+nqnh+jdc4A+Phijt3i8q6/yDJj0WhM9TVgo7TKzbe7/SpzU98gdY2bOxZd1xNjFyquVEP92+LAm+s/OCbU7n3g43EWKfq5M6fpIPtXzEOFMRuOncg7EEGywDz3cyaCD+mtuI6hF3beG0ntA== jonschipp@WordOfMouf.local
+EOF
+cat <<EOF > $SSH/id_dsa
+-----BEGIN DSA PRIVATE KEY-----
+MIIBugIBAAKBgQCBzWM39/APjxyKUmHewe/FwFJ56k1rcRjjeC0QnBjpOGg32ORR
+eweb+csCwW+hwUGdKFbq/3FvO69Ao/cj+eoWmbatPSSAQMsFqSCp1pBOfoM7OtiA
+6u5l8b5sd7DQK6b2xn8wlfcmN4XXhB6mLcCOnzsoG9YUUedl36CLKOxAAwIVAJLF
+ckZXOgd64ZNHj2lhErJo2NWPAoGASUqP3PYgQiCr6ylB25wNhKIRuAdSujxVF+ji
+wnqlZcw2R8GmFxw0J60kjpqivEcrbbBoVhAtepKfG3P5XZv8ULhpml6qrZPZkvTB
+gwHiYF8d5Q+V5CGG68qUhkrlRuVLQupxSsW1pJRBdK0r5vsg58mqCpWJAOvudp4M
+fOW09dMCgYBh7YhYuy6YHilCcbkAa0UvVu6Lds+nqnh+jdc4A+Phijt3i8q6/yDJ
+j0WhM9TVgo7TKzbe7/SpzU98gdY2bOxZd1xNjFyquVEP92+LAm+s/OCbU7n3g43E
+WKfq5M6fpIPtXzEOFMRuOncg7EEGywDz3cyaCD+mtuI6hF3beG0ntAIUcLGhWozZ
+wsMfG8jpCFr1RPEGzZs=
+-----END DSA PRIVATE KEY-----
+EOF
+chmod 0600 $SSH/*
 }
 
 function lvm_configuration {
