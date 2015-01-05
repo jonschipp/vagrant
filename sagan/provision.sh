@@ -3,6 +3,7 @@
 # Written for Ubuntu Saucy and Trusty, should be adaptable to other distros.
 
 ## Variables
+VAGRANT=/home/vagrant
 HOME=/root
 cd $HOME
 
@@ -52,7 +53,7 @@ install_dependencies(){
               autoreconf -vfi && ./configure --disable-docs && make install && ldconfig
 }
 
-install_islet(){
+install_sagan(){
   printf "$1 $FUNCNAME\n"
   if ! [ -d sagan ]
   then
@@ -63,21 +64,22 @@ install_islet(){
 
   if ! [ -d /usr/local/etc/sagan-rules ]
   then
-    git clone http://github.com/beave/sagan-rules || die "Clone of sagan-rules repo failed"
+    git clone http://github.com/beave/sagan-rules /usr/local/etc/sagan-rules || die "Clone of sagan-rules repo failed"
   fi
 }
 
-configuration() {
+configuration(){
   printf "$1 $FUNCNAME\n"
+  getent passwd sagan || useradd sagan --shell /sbin/nologin --home /
+  getent group sagan | grep -q syslog || gpasswd -a syslog sagan
   chown -R sagan:sagan /var/log/sagan /var/run/sagan
   chown -R sagan:sagan /usr/local/etc/
-  mkfifo /var/run/sagan.fifo
+  [ -p /var/run/sagan.fifo ] || mkfifo /var/run/sagan.fifo
   chown sagan:sagan /var/run/sagan.fifo
   chmod 660 /var/run/sagan.fifo
-  getent group sagan | grep -q syslog || gpasswd -a -G syslog sagan
-  [ -e $HOME/rsyslog-sagan.conf ] && install -o root -g root -m 644 $HOME/rsyslog-sagan.conf \
+  [ -e $VAGRANT/rsyslog-sagan.conf ] && install -o root -g root -m 644 $VAGRANT/rsyslog-sagan.conf \
     /etc/rsyslog.d/sagan.conf && restart rsyslog
-  [ -e $HOME/sagan.upstart ] && install -o root -g root -m 644 $HOME/sagan.upstart \
+  [ -e $VAGRANT/sagan.upstart ] && install -o root -g root -m 644 $VAGRANT/sagan.upstart \
     /etc/init/sagan.conf && start sagan
 }
 
