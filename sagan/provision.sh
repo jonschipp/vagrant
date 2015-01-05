@@ -75,8 +75,10 @@ configuration() {
   chown sagan:sagan /var/run/sagan.fifo
   chmod 660 /var/run/sagan.fifo
   getent group sagan | grep -q syslog || gpasswd -a -G syslog sagan
-
-  echo -e '#Sagan template\n$template sagan,"%fromhost-ip%|%syslogfacility-text%|%syslogpriority-text%|%syslogseverity-text%|%syslogtag%|%timegenerated:1:10:date-rfc3339%|%timegenerated:12:19:date-rfc3339%|%programname%|%msg%\\n"\n*.*     |/var/run/sagan.fifo;sagan\n' > /etc/rsyslog.d/sagan.conf
+  [ -e $HOME/rsyslog-sagan.conf ] && install -o root -g root -m 644 $HOME/rsyslog-sagan.conf \
+    /etc/rsyslog.d/sagan.conf && restart rsyslog
+  [ -e $HOME/sagan.upstart ] && install -o root -g root -m 644 $HOME/sagan.upstart \
+    /etc/init/sagan.conf && start sagan
 }
 
 install_dependencies "1.)"
