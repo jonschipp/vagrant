@@ -4,16 +4,10 @@
 $ vagrant up
 ````
 
-will provision a machine with [ISLET](https://github.com/jonschipp/ISLET) (Isolate, Scalable, & Lightweight Environment for Training).
+will provision a machine with [Sagan](http://sagan.io).
 
-When a user ssh's to the demo account on the machine they're placed in a contained Linux environment designed for training.
-
-Use:
-```shell
-$ ssh -p 2222 demo@127.0.0.1 -o UserKnownHostsFile=/dev/null
+Barnyard2 is installed as well but needs to be configured to connect to a MySQL database
 ```
-
-The password for the demo user is:
-```
-demo
+$ vim /usr/local/etc/barnyard2-sagan.conf
+$ start barnyard2
 ```
