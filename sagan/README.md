@@ -1,4 +1,4 @@
-# ISLET
+# Sagan
 
 ````
 $ vagrant up
