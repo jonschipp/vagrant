@@ -3,10 +3,15 @@
 # Written for Ubuntu Saucy and Trusty, should be adaptable to other distros.
 
 ## Variables
+PROVIDER="$1"
 HOME=/root
+VAGRANT=/home/vagrant
 PREFIX=/opt/cuckoo
+CONFIG=$PREFIX/conf
+PACKAGES="cowsay unzip python python-sqlalchemy python-bson git bison flex python-dpkt python-jinja2 python-yara python-magic python-pymongo python-gridfs python-libvirt python-bottle python-pefile python-chardet volatility tcpdump libcap2-bin mongodb python-django python-dev libfuzzy-dev python-pip ssdeep"
 
 # Installation notification
+MAIL=$(which mail)
 COWSAY=/usr/games/cowsay
 IRCSAY=/usr/local/bin/ircsay
 IRC_CHAN="#replace_me"
@@ -25,7 +30,7 @@ function die {
   if [ -f $IRCSAY ]; then
     ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
   fi
-  echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+  [ $MAIL ] && echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
   exit 1
 }
 
@@ -38,29 +43,95 @@ function hi {
   if [ -f $IRCSAY ]; then
     ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
   fi
-  echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+  [ $MAIL ] && echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+}
+
+number_of_packages(){ package_count="$#"; }
+
+package_check(){
+  local packages=$@
+  local count=0
+  # Count number of items in packages variable
+  number_of_packages $packages
+
+  # Format items for egrep query
+  pkg_list=$(echo $packages | sed 's/ /|  /g')
+
+  # Count number of packages installed from list
+  count=$(dpkg -l | egrep "  $pkg_list" | wc -l)
+
+  if [ $count -ge $package_count ]
+  then
+    return 0
+  else
+    echo "Installing packages for function!"
+    apt-get install -qy $packages
+  fi
 }
 
 install_dependencies(){
   echo "$1 $FUNCNAME"
   apt-get update -qq
   # Required
-  apt-get install -yq python python-sqlalchemy python-bson git
-  # Recommended
-  apt-get install -yq python-dpkt python-jinja2
-  # Optional
-  apt-get install -yq yara python-yara python-magic python-pymongo python-gridfs python-libvirt \
-    python-bottle python-pefile python-chardet volatility tcpdump libcap2-bin
-    # maec, pydeep
-  # Virtualization
-  if egrep -q '(vmx|svm)' /proc/cpuinfo; then
-    apt-get install -yq qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
-  else
-    echo "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib non-free" > /etc/apt/sources.list.d/virtualbox.list
-    wget -q http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc -O - | sudo apt-key add -
-    apt-get update && apt-get install -yq virtualbox-4.3 dkms
+  apt-get install -yq $PACKAGES
+    # maec
+  pip install pydeep distorm3
+  install_yara
+  install_distorm
+  [ $PROVIDER ] || die "Argument not specified, pass either virtualbox or kvm as argument"
+  [ "$PROVIDER" == "virtualbox" ] && install_virtualbox
+  [ "$PROVIDER" == "kvm" ] && install_kvm
+}
+
+install_virtualbox(){
+  [ -e /etc/apt/sources.list.d/virtualbox.list ] || echo "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib non-free" > /etc/apt/sources.list.d/virtualbox.list &&
+    wget -q http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc -O - | apt-key add - && apt-get update
+  package_check virtualbox-4.3 dkms
+  [ -d $HOME/.config ] || mkdir -p -m 700 $HOME/.config/VirtualBox
+  [ -e $VAGRANT/VirtualBox.xml ] && install -o root -g root -m 600 $VAGRANT/VirtualBox.xml $HOME/.config/VirtualBox
+  mkdir -p /root/VirtualBox\ VMs/Cuckoo/
+}
+
+install_kvm(){
+  [ $VT -eq 1 ] || die "KVM is not supported by the hardware, use virtualbox instead"
+  package_check qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
+}
+
+install_mysql(){
+  echo "$1 $FUNCNAME"
+  debconf-set-selections <<< 'mysql-server mysql-server/root_password password password'
+  debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password password'
+  package_check mysql-server python-mysqldb
+  mysql --user=root --password=password -e "CREATE DATABASE cuckoo;" || die "Failed to create MySQL cuckoo database"
+  mysql --user=root --password=password -e "CREATE USER 'cuckoo'@'localhost' IDENTIFIED BY 'password';"
+  mysql --user=root --password=password -e "GRANT ALL PRIVILEGES ON cuckoo.* TO 'cuckoo'@'localhost' WITH GRANT OPTION;"
+  mysql --user=root --password=password -e "CREATE USER 'cuckoo'@'%' IDENTIFIED BY 'password';"
+  mysql --user=root --password=password -e "GRANT ALL PRIVILEGES ON cuckoo.* TO 'cuckoo'@'%' WITH GRANT OPTION;"
+}
+
+install_yara() {
+  echo "$1 $FUNCNAME"
+  package_check libpcre3 libpcre3-dev libtool automake autoconf autotools-dev libjansson-dev libmagic-dev
+  if ! [ -d yara ]
+  then
+    git clone https://github.com/plusvic/yara
+    cd yara
+    ./bootstrap.sh && ./configure --enable-cuckoo --enable-magic && make && make install || die "yara failed to install"
+    pip install yara-python || die "yara-python failed to install"
   fi
-  }
+}
+
+install_distorm() {
+  echo "$1 $FUNCNAME"
+  if ! [ -d distorm3 ]
+  then
+    wget http://distorm.googlecode.com/files/distorm-package3.1.zip || die "Failed to download distorm3"
+    unzip distorm-package3.1.zip
+    cd distorm3
+    python setup.py build
+    python setup.py install
+  fi
+}
 
 configure_dependencies(){
   echo "$1 $FUNCNAME"
@@ -82,23 +153,54 @@ install_cuckoo(){
   echo "$1 $FUNCNAME"
   if ! [ -d $PREFIX ]
   then
-    git clone git://github.com/cuckoobox/cuckoo.git $PREFIX || die "Clone of islet repo failed"
+    git clone git://github.com/cuckoobox/cuckoo.git $PREFIX || die "Clone of cuckoo repo failed"
   fi
 }
 
 configure_cuckoo(){
   echo "$1 $FUNCNAME"
-  #sed -i '/^machinery/s/virtualbox/kvm/' $PREFIX/conf/cuckoo.conf
-  sed -i '/^memory_dump/s/off/on/' $PREFIX/conf/cuckoo.conf
-  sed -i '/^terminate_processes/s/off/on/' $PREFIX/conf/cuckoo.conf
-  sed -i '/^freespace/s/64/512/' $PREFIX/conf/cuckoo.conf
-  sed -i '/^ip =/s/192\.168\.56\.1/0.0.0.0/' $PREFIX/conf/cuckoo.conf
-  sed -i '/^resolve_dns/s/on/off/' $PREFIX/conf/cuckoo.conf
-  sed -i '/^# bpf/s/^#//' $PREFIX/conf/auxiliary.conf
+  [ -e $VAGRANT/cuckoo.conf ]       && install -o root -g root -m 644 $VAGRANT/cuckoo.conf $CONFIG/cuckoo.conf
+  [ -e $VAGRANT/memory.conf ]       && install -o root -g root -m 644 $VAGRANT/memory.conf $CONFIG/memory.conf
+  [ -e $VAGRANT/auxiliary.conf ]    && install -o root -g root -m 644 $VAGRANT/auxiliary.conf $CONFIG/auxiliary.conf
+  [ -e $VAGRANT/reporting.conf ]    && install -o root -g root -m 644 $VAGRANT/reporting.conf $CONFIG/reporting.conf
+  [ -e $VAGRANT/virtualbox.conf ]   && install -o root -g root -m 644 $VAGRANT/virtualbox.conf $CONFIG/virtualbox.conf
+  [ -e $VAGRANT/kvm.conf ]          && install -o root -g root -m 644 $VAGRANT/kvm.conf $CONFIG/kvm.conf
+  [ -e $VAGRANT/local_settings.py ] && install -o root -g root -m 644 $VAGRANT/local_settings.py $PREFIX/web/web/local_settings.py
+  [ -e $VAGRANT/upstart.conf ]      && install -o root -g root -m 644 $VAGRANT/upstart.conf /etc/init/cuckoo.conf
+  [ -e $VAGRANT/cuckoo-api.conf ]   && install -o root -g root -m 644 $VAGRANT/cuckoo-api.conf /etc/init/cuckoo-api.conf
+  [ -e $VAGRANT/cuckoo-web.conf ]   && install -o root -g root -m 644 $VAGRANT/cuckoo-web.conf /etc/init/cuckoo-web.conf
+  [ $VT ] && sed -i '/^machinery/s/virtualbox/kvm/' $PREFIX/conf/cuckoo.conf
+  install_mysql
+  start cuckoo && start cuckoo-api && start cuckoo-web
 }
 
+network_configuration(){
+  echo "$1 $FUNCNAME"
+  sed -i 's/without-password/yes/' /etc/ssh/sshd_config && restart ssh
+cat <<EOF > /etc/network/if-pre-up.d/iptables-rules
+# Flushing all rules
+iptables -F
+iptables -X
+# Adding guest access to network
+iptables -A FORWARD -o eth0 -i vboxnet0 -s 192.168.122.0/24 -m conntrack --ctstate NEW -j ACCEPT
+iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A POSTROUTING -t nat -j MASQUERADE
+EOF
+  chmod 750 /etc/network/if-pre-up.d/iptables-rules
+  /etc/network/if-pre-up.d/iptables-rules
+  echo "net.ipv4.ip_forward=1" > /etc/sysctl.d/cuckoo.conf
+  sysctl -p
+}
+
+# Test for hardware virtualization
+egrep -q '(vmx|svm)' /proc/cpuinfo && VT=1
+
+hi "Chosen provider is $PROVIDER"
 install_dependencies "1.)"
 configure_dependencies "2.)"
 configure_users "3.)"
 install_cuckoo "4.)"
 configure_cuckoo "5.)"
+network_configuration "6.)"
+
+pgrep -f "/usr/bin/python /opt/cuckoo/cuckoo.py" 1>/dev/null && hi "Installation successful! $(status cuckoo)..."
