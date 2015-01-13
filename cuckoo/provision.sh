@@ -73,7 +73,7 @@ install_dependencies(){
   echo "$1 $FUNCNAME"
   apt-get update -qq
   # Required
-  apt-get install -yq $PACKAGES
+  package_check $PACKAGES
     # maec
   pip install pydeep distorm3
   install_yara
