@@ -112,3 +112,5 @@ install_dependencies "1.)"
 compile_kernel "2.)"
 install_gradm "3.)"
 install_paxctld "4.)"
+
+hi "All is well! Rebooting into new kernel" && reboot
