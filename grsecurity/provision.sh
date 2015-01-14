@@ -5,7 +5,7 @@
 ## Variables
 HOME=/root
 VAGRANT=/home/vagrant
-PACKAGES="cowsay xz build-essential flex bison ncurses-dev gcc-4.8-plugin-dev"
+PACKAGES="cowsay build-essential flex bison ncurses-dev gcc-4.8-plugin-dev"
 VERS="${1:-3.14.28}"
 PATCH="grsecurity-3.0-${VERS}-201501120819.patch"
 KERNEL="linux-${VERS}.tar.xz"
@@ -78,12 +78,12 @@ install_dependencies(){
   echo "$1 $FUNCNAME"
   apt-get update -qq
   package_check $PACKAGES
-  [ -f $KERNEL ] || { wget https://www.kernel.org/pub/linux/kernel/v3.x/$KERNEL || die "Download of kernel failed"; }
-  [ -f $PATH]    || { wget https://grsecurity.net/stable/$PATCH || die "Download of patch failed"; }
+  [ -f $KERNEL ] || { wget --progress=dot:mega https://www.kernel.org/pub/linux/kernel/v3.x/$KERNEL || die "Download of kernel failed"; }
+  [ -f $PATCH  ] || { wget --progress=dot:mega https://grsecurity.net/stable/$PATCH || die "Download of patch failed"; }
   [ -d $DIR ]    || tar xf $KERNEL
   cd $HOME/$DIR
-  patch -p1 < $HOME/grsecurity-2.9.1-3.2.50-201308052151.patch || die "Patch failed to apply!"
-  [ -e $VAGRANT ] && install -o root -g root $VAGRANT $HOME/$DIR/.config
+  patch -p1 < $HOME/$PATCH || die "Patch failed to apply!"
+  [ -e $VAGRANT/config ] && install -o root -g root $VAGRANT/config $HOME/$DIR/.config
 }
 
 compile_kernel(){
