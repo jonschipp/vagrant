@@ -100,7 +100,7 @@ install_gradm(){
   echo "$1 $FUNCNAME"
   [ -f $GRADM ] || { wget https://grsecurity.net/stable/$GRADM || die "Download of gradm admin tool failed"; }
   [ -d gradm ]  || tar zxf $GRADM
-  [ -f /sbin/gradm ] || { cd $HOME/gradm && make && make install || die "Failed to compile gradm!"; }
+  [ -f /sbin/gradm ] || { cd $HOME/gradm && sed -i 's|/sbin/.*-P|echo "Run /sbin/gradm -P"|' Makefile && make && make install || die "Failed to compile gradm!"; }
 }
 
 install_paxctld(){
