@@ -50,6 +50,7 @@ function hi {
     ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
   fi
   [ $MAIL ] && echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+  return 0
 }
 
 number_of_packages(){ package_count="$#"; }
@@ -92,7 +93,7 @@ compile_kernel(){
   make -j $CPUS         || die "Failed to build kernel!"
   make -j $CPUS modules || die "Failed to build kernel modules!"
   make modules_install  || die "Failed to install kernel modules!"
-  make install && hi "Linux kernel $KERNEL installed!"
+  { make install && hi "Linux kernel $KERNEL installed!"; } || die "Failed to install new kernel!"
 }
 
 install_gradm(){
@@ -113,4 +114,4 @@ install_paxctld(){
 [ -c /dev/grsec ] && install_gradm "3.)"
 install_paxctld "4.)"
 
-[ "$UNAME" = "${VERS}-grsec" ] || hi "All is well! Rebooting into new kernel" && reboot
+[ "$UNAME" = "${VERS}-grsec" ] || { hi "All is well! Rebooting into new kernel" && reboot; }
