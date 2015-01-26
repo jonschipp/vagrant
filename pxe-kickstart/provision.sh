@@ -16,6 +16,9 @@ NET=$(ifconfig $NIC | grep 'inet addr:' | cut -d: -f3 | awk '{ print $1 }' | cut
 BEGIN_RANGE=2
 END_RANGE=254
 
+echo $URL | grep -q amd64 && ARCH=amd64
+echo $URL | grep -q i386 && ARCH=i386
+
 # Installation notification
 MAIL=$(which mail)
 COWSAY=/usr/games/cowsay
@@ -86,7 +89,7 @@ configuration(){
   hi "$1 $FUNCNAME"
   grep -q "tftpboot" /etc/inetd.conf           || echo "tftp    dgram   udp    wait    root   \
     /usr/sbin/in.tftpd /usr/sbin/in.tftpd -s /var/lib/tftpboot" >> /etc/inetd.conf
-  [ -e $HOME/ubuntu-14.04.1-server-amd64.iso ] || wget --progress=dot:mega -O $HOME/$ISO $URL
+  [ -e $HOME/ubuntu-14.04.1-server-$ARCH.iso ] || wget --progress=dot:mega -O $HOME/$ISO $URL
   [ -d /mnt/install ]                          || mount -o loop $HOME/$ISO /mnt
   [ -d /var/www/html/ubuntu/install ]          || mkdir -p /var/www/html/ubuntu/install
   cp -rf /mnt/* /var/www/html/ubuntu/
@@ -125,14 +128,14 @@ d-i live-installer/net-image string
 d-i live-installer/net-image string http://$IP/ubuntu/install/filesystem.squashfs
 EOF
 
-cat <<EOF > /var/lib/tftpboot/ubuntu-installer/amd64/boot-screens/syslinux.cfg
+cat <<EOF > /var/lib/tftpboot/ubuntu-installer/$ARCH/boot-screens/syslinux.cfg
 # D-I config version 2.0
-default ubuntu-installer/amd64/boot-screens/vesamenu.c32
+default ubuntu-installer/$ARCH/boot-screens/vesamenu.c32
 prompt 0
 timeout 0
 label Ubuntu-14.04.1-Server
-        kernel ubuntu-installer/amd64/linux
-	append vga=normal initrd=ubuntu-installer/amd64/initrd.gz ks=http://$IP/ubuntu/install/ks.cfg url=http://$IP/ubuntu/install/preseed.cfg ramdisk_size=16432 root=/dev/rd/0 rw  --
+        kernel ubuntu-installer/$ARCH/linux
+	append vga=normal initrd=ubuntu-installer/$ARCH/initrd.gz ks=http://$IP/ubuntu/install/ks.cfg url=http://$IP/ubuntu/install/preseed.cfg ramdisk_size=16432 root=/dev/rd/0 rw  --
 EOF
 }
 
