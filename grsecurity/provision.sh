@@ -6,14 +6,15 @@
 HOME=/root
 VAGRANT=/home/vagrant
 PACKAGES="cowsay build-essential flex bison ncurses-dev gcc-4.8-plugin-dev"
-VERS="${1:-3.14.28}"
-PATCH="grsecurity-3.0-${VERS}-201501120819.patch"
-KERNEL="linux-${VERS}.tar.xz"
+PATCH="$(wget http://grsecurity.net/latest_stable2_patch -O - 2>/dev/null)"
+VERS=$(echo "$PATCH" | grep -o '[0-9]\.[1-9][0-9]\.[1-9][0-9]')
+URL=http://www.kernel.org/$(wget -O - https://www.kernel.org 2>/dev/null | grep -A 1 "linux-${VERS}.*"  | awk -F '[""]' 'NR == 1 { print $2 }')
+KERNEL=$(basename $URL)
 DIR=${KERNEL%.*.*}
 GRADM="gradm-3.0-201408301734.tar.gz"
 PAXCTLD="paxctld_1.0-2_amd64.deb"
-GDIR=${GRADM%.*.*}
 CPUS=$(nproc)
+UNAME=$(uname -r)
 [ -e /etc/redhat-release ] && OS=el
 [ -e /etc/debian_version ] && OS=debian
 
@@ -51,6 +52,7 @@ function hi {
     ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
   fi
   [ $MAIL ] && echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+  return 0
 }
 
 number_of_packages(){ package_count="$#"; }
@@ -83,7 +85,7 @@ install_dependencies(){
   [ "$OS" = "debian" ] && apt-get update -qq
   [ "$OS" = "el" ]     && yum makecache -q
   package_check $PACKAGES
-  [ -f $KERNEL ] || { wget --progress=dot:mega https://www.kernel.org/pub/linux/kernel/v3.x/$KERNEL || die "Download of kernel failed"; }
+  [ -f $KERNEL ] || { wget --progress=dot:mega $URL || die "Download of kernel failed"; }
   [ -f $PATCH  ] || { wget --progress=dot:mega https://grsecurity.net/stable/$PATCH || die "Download of patch failed"; }
   [ -d $DIR ]    || tar xf $KERNEL
   cd $HOME/$DIR
@@ -96,26 +98,25 @@ compile_kernel(){
   make -j $CPUS         || die "Failed to build kernel!"
   make -j $CPUS modules || die "Failed to build kernel modules!"
   make modules_install  || die "Failed to install kernel modules!"
-  { make install && hi "Linux kernel $KERNEL installed!"; } || die "Failed to install kernel!"
+  { make install && hi "Linux kernel $KERNEL installed!"; } || die "Failed to install new kernel!"
 }
 
 install_gradm(){
   echo "$1 $FUNCNAME"
   [ -f $GRADM ] || { wget https://grsecurity.net/stable/$GRADM || die "Download of gradm admin tool failed"; }
-  [ -d $GDIR ]  || tar zxf $KERNEL
-  cd $HOME/$GDIR
-  make && make install || die "Failed to compile gradm!"
+  [ -d gradm ]  || tar zxf $GRADM
+  [ -f /sbin/gradm ] || { cd $HOME/gradm && sed -i 's|/sbin/.*-P|echo "Run /sbin/gradm -P"|' Makefile && make && make install || die "Failed to compile gradm!"; }
 }
 
 install_paxctld(){
   echo "$1 $FUNCNAME"
-  wget --quiet https://grsecurity.net/paxctld/$PAXCTLD
-  [ -e $PAXCTLD ] && dpkg --install $PAXCTLD
+  [ -f /sbin/paxctld ] || wget --quiet https://grsecurity.net/paxctld/$PAXCTLD
+  [ -f $PAXCTLD ] && dpkg --install $PAXCTLD
 }
 
-install_dependencies "1.)"
-compile_kernel "2.)"
-install_gradm "3.)"
+[ "$UNAME" = "${VERS}-grsec" ] || install_dependencies "1.)"
+[ -f /boot/vmlinuz-${VERS}-grsec ] || compile_kernel "2.)"
+[ -c /dev/grsec ] && install_gradm "3.)"
 install_paxctld "4.)"
 
-hi "All is well! Rebooting into new kernel" && reboot
+[ "$UNAME" = "${VERS}-grsec" ] || { hi "All is well! Rebooting into new kernel" && reboot; }
