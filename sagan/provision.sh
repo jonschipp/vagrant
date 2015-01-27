@@ -7,6 +7,8 @@ VAGRANT=/home/vagrant
 HOME=/root
 DAQ=2.0.4
 PACKAGES="cowsay git build-essential checkinstall automake autoconf pkg-config libtool libpcre3-dev libpcre3 libdumbnet1 libdumbnet-dev libesmtp-dev libpcap-dev libgeoip-dev libjson0 libjson0-dev libcurl4-openssl-dev"
+[ -e /etc/redhat-release ] && OS=el
+[ -e /etc/debian_version ] && OS=debian
 
 # Installation notification
 MAIL=$(which mail)
@@ -56,20 +58,23 @@ package_check(){
   pkg_list=$(echo $packages | sed 's/ /|  /g')
 
   # Count number of packages installed from list
-  count=$(dpkg -l | egrep "  $pkg_list" | wc -l)
+  [ "$OS" = "debian" ] && count=$(dpkg -l | egrep "  $pkg_list" | wc -l)
+  [ "$OS" = "el" ]     && count=$(yum list installed | egrep "$pkg_list" | wc -l)
 
   if [ $count -ge $package_count ]
   then
     return 0
   else
     echo "Installing packages for function!"
-    apt-get install -qy $packages
+    [ "$OS" = "debian" ] && yum install -qy $packages
+    [ "$OS" = "el" ]     && apt-get install -qy $packages
   fi
 }
 
 install_dependencies(){
   hi "$1 $FUNCNAME\n"
-  apt-get update -qq
+  [ "$OS" = "debian" ] && apt-get update -qq
+  [ "$OS" = "el" ]     && yum makecache -q
   package_check $PACKAGES
   [ -f /usr/local/lib/libestr.so.0.0.0 ] || (git clone https://github.com/rsyslog/libestr && cd libestr && \
     autoreconf -vfi && ./configure && make && make install && ldconfig)

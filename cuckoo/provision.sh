@@ -9,6 +9,8 @@ VAGRANT=/home/vagrant
 PREFIX=/opt/cuckoo
 CONFIG=$PREFIX/conf
 PACKAGES="cowsay unzip python python-sqlalchemy python-bson git bison flex python-dpkt python-jinja2 python-yara python-magic python-pymongo python-gridfs python-libvirt python-bottle python-pefile python-chardet volatility tcpdump libcap2-bin mongodb python-django python-dev libfuzzy-dev python-pip ssdeep"
+[ -e /etc/redhat-release ] && OS=el
+[ -e /etc/debian_version ] && OS=debian
 
 # Installation notification
 MAIL=$(which mail)
@@ -58,20 +60,23 @@ package_check(){
   pkg_list=$(echo $packages | sed 's/ /|  /g')
 
   # Count number of packages installed from list
-  count=$(dpkg -l | egrep "  $pkg_list" | wc -l)
+  [ "$OS" = "debian" ] && count=$(dpkg -l | egrep "  $pkg_list" | wc -l)
+  [ "$OS" = "el" ]     && count=$(yum list installed | egrep "$pkg_list" | wc -l)
 
   if [ $count -ge $package_count ]
   then
     return 0
   else
     echo "Installing packages for function!"
-    apt-get install -qy $packages
+    [ "$OS" = "debian" ] && yum install -qy $packages
+    [ "$OS" = "el" ]     && apt-get install -qy $packages
   fi
 }
 
 install_dependencies(){
   echo "$1 $FUNCNAME"
-  apt-get update -qq
+  [ "$OS" = "debian" ] && apt-get update -qq
+  [ "$OS" = "el" ]     && yum makecache -q
   # Required
   package_check $PACKAGES
     # maec

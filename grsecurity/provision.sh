@@ -14,6 +14,8 @@ GRADM="gradm-3.0-201408301734.tar.gz"
 PAXCTLD="paxctld_1.0-2_amd64.deb"
 GDIR=${GRADM%.*.*}
 CPUS=$(nproc)
+[ -e /etc/redhat-release ] && OS=el
+[ -e /etc/debian_version ] && OS=debian
 
 # Installation notification
 MAIL=$(which mail)
@@ -63,20 +65,23 @@ package_check(){
   pkg_list=$(echo $packages | sed 's/ /|  /g')
 
   # Count number of packages installed from list
-  count=$(dpkg -l | egrep "  $pkg_list" | wc -l)
+  [ "$OS" = "debian" ] && count=$(dpkg -l | egrep "  $pkg_list" | wc -l)
+  [ "$OS" = "el" ]     && count=$(yum list installed | egrep "$pkg_list" | wc -l)
 
   if [ $count -ge $package_count ]
   then
     return 0
   else
     echo "Installing packages for function!"
-    apt-get install -qy $packages
+    [ "$OS" = "debian" ] && yum install -qy $packages
+    [ "$OS" = "el" ]     && apt-get install -qy $packages
   fi
 }
 
 install_dependencies(){
   echo "$1 $FUNCNAME"
-  apt-get update -qq
+  [ "$OS" = "debian" ] && apt-get update -qq
+  [ "$OS" = "el" ]     && yum makecache -q
   package_check $PACKAGES
   [ -f $KERNEL ] || { wget --progress=dot:mega https://www.kernel.org/pub/linux/kernel/v3.x/$KERNEL || die "Download of kernel failed"; }
   [ -f $PATCH  ] || { wget --progress=dot:mega https://grsecurity.net/stable/$PATCH || die "Download of patch failed"; }
