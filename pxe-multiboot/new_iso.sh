@@ -115,7 +115,7 @@ configuration(){
   do
     [ -e /mnt/loop/$i/vmlinuz ] && cp /mnt/loop/$i/vmlinuz /var/lib/tftpboot/$RELEASE
     [ -e /mnt/loop/$i/initrd* ] && cp /mnt/loop/$i/initrd* /var/lib/tftpboot/$RELEASE
-    file /var/lib/tftpboot/$RELEASE/initrd* | grep -q gzip && gzip /var/lib/tftpboot/$RELEASE/initrd*
+    file /var/lib/tftpboot/$RELEASE/initrd* | grep -q gzip && gzip -d /var/lib/tftpboot/$RELEASE/initrd*
   done
 
   cp -R /mnt/loop/* /srv/install/$RELEASE
