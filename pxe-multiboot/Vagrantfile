@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "trusty"
+  config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+  config.vm.network "public_network", bridge: 'en0: Ethernet Alias'
+  config.vm.provision "file", source: "ks.cfg", destination: "ks.cfg"
+  config.vm.provision "file", source: "tftpd-hpa", destination: "tftpd-hpa"
+  config.vm.provision "file", source: "new_iso.sh", destination: "new_iso"
+  config.vm.provision "shell", path: "provision.sh"
+
+  config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.0.1 --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-amd64.iso"
+  config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.0.1 --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-i386.iso"
+
+  # config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.04-NetBoot --url http://archive.ubuntu.com/ubuntu/dists/trusty-updates/main/installer-i386/current/images/netboot/mini.iso"
+  # config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.04-NetBoot --url http://archive.ubuntu.com/ubuntu/dists/trusty-updates/main/installer-amd64/current/images/netboot/mini.iso"
+  # config.vm.provision "shell", path: "new_iso.sh", args: "--os CentOS --version 7.0 --url http://mirror.cs.uwp.edu/pub/centos/7.0.1406/isos/x86_64/CentOS-7.0-1406-x86_64-Minimal.iso"
+  # config.vm.provision "shell", path: "new_iso.sh", args: "--os Fedora --version 21 --url http://download.fedoraproject.org/pub/fedora/linux/releases/21/Server/i386/iso/Fedora-Server-netinst-i386-21.iso"
+  # config.vm.provision "shell", path: "new_iso.sh", args: "--os Fedora --version 21 --url http://download.fedoraproject.org/pub/fedora/linux/releases/21/Server/x86_64/iso/Fedora-Server-netinst-x86_64-21.iso"
+  # config.vm.provision "shell", path: "new_iso.sh", args: "--os Kali --version 1.0.9a --url http://cdimage.kali.org/kali-1.0.9a/kali-linux-1.0.9a-i386.iso"
+  # config.vm.provision "shell", path: "new_iso.sh", args: "--os Kali --version 1.0.9a --url http://cdimage.kali.org/kali-1.0.9a/kali-linux-1.0.9a-amd64.iso"
+
+  config.vm.provider "virtualbox" do |vb|
+      vb.gui = false
+      vb.name = "multi-pxe"
+      vb.customize ["modifyvm", :id, "--memory", "2048"]
+      vb.customize ["modifyvm", :id, "--cpus", 3]
+   end
+
+end
