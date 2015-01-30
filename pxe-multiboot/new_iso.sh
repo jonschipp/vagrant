@@ -7,6 +7,8 @@ ISO_DIR=/srv/iso
 SYSLINUX=/usr/lib/syslinux/pxelinux.0
 NIC=eth1
 IP=$(ifconfig $NIC | grep 'inet addr:' | cut -d: -f2 | awk '{print $1}')
+KERNEL="vmlinuz"
+RAMDISK="initrd*"
 
 # Installation notification
 MAIL=$(which mail)
@@ -29,6 +31,10 @@ Each option is required.
      --os       Set OS os distribution name
      --url      URL of ISO image to configure
      --version  Set version
+     --kernel   Set name of kernel (def: vmlinuz)
+     --ramdisk  Set name of ramdisk (def: initrd*)
+     --arch     Set arch if not listed in url as i386/amd64/x86_64
+     --dir      Set directory of kernel in iso e.g. images/pxeboot (def: best guess)
 
 Usage: $0 --os Ubuntu --version 14.0.1 --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-amd64.iso
 EOF
@@ -109,13 +115,13 @@ configuration(){
   mkdir -p /var/lib/tftpboot/$RELEASE || die "Failed to create dir!"
   mkdir -p /srv/install/$RELEASE      || die "Failed to create dir!"
 
-  mount -o loop -t iso9660 $ISO_DIR/$ISO /mnt/loop
+  mount -o loop -t iso9660 $ISO_DIR/$ISO /mnt/loop 2>/dev/null || die "Unable to mount $ISO_DIR/$ISO!"
 
-  for i in $LOCATION
+  for i in $DIR
   do
-    [ -e /mnt/loop/$i/vmlinuz ] && cp /mnt/loop/$i/vmlinuz /var/lib/tftpboot/$RELEASE
-    [ -e /mnt/loop/$i/initrd* ] && cp /mnt/loop/$i/initrd* /var/lib/tftpboot/$RELEASE
-    file /var/lib/tftpboot/$RELEASE/initrd* | grep -q gzip && gzip -d /var/lib/tftpboot/$RELEASE/initrd*
+    [ -e /mnt/loop/$i/$KERNEL ] 2>/dev/null && cp /mnt/loop/$i/$KERNEL /var/lib/tftpboot/$RELEASE
+    [ -e /mnt/loop/$i/$RAMDISK ] 2>/dev/null && cp /mnt/loop/$i/$RAMDISK /var/lib/tftpboot/$RELEASE
+    file /var/lib/tftpboot/$RELEASE/$RAMDISK | grep -q gzip && gzip -d /var/lib/tftpboot/$RELEASE/$RAMDISK
   done
 
   cp -R /mnt/loop/* /srv/install/$RELEASE
@@ -124,7 +130,7 @@ configuration(){
 cat <<EOF >> /var/lib/tftpboot/$RELEASE/$DISTRO.menu
 LABEL $N
         MENU LABEL $DISTRO $VERSION ($ARCH)
-        KERNEL $RELEASE/vmlinuz
+        KERNEL $RELEASE/$KERNEL
         APPEND $BOOT
         TEXT HELP
         Install $DISTRO $VERSION ($ARCH)
@@ -148,29 +154,35 @@ EOF
 
 argcheck 3
 
-set -- $(getopt -n $0 -u -a --longoptions="url: os: version:" "h" "$@")
+set -- $(getopt -n $0 -u -a --longoptions="url: os: version: kernel: ramdisk: arch: dir:" "h" "$@")
 while [ $# -gt 0 ]
 do
   case "$1" in
    --url) URL="$2"; shift;;
    --os)  DISTRO="$2"; shift;;
    --version) VERSION="$2"; shift;;
+   --kernel) KERNEL="$2"; shift;;
+   --initrd) RAMDISK="$2"; shift;;
+   --arch) ARCH="$2"; shift;;
+   --dir) DIR="$2"; shift;;
    --help|-h) usage; exit;;
   esac
   shift
 done
 
-echo $URL | egrep -q 'x86_64|amd64' && ARCH=amd64
-echo $URL | grep -q i[3-6]86 && ARCH=i386
-ARCH=${ARCH:-unknown}
-RELEASE="$DISTRO/$VERSION/$ARCH"
-LOCATION=$(echo {install,install.*,isolinux,casper,images/pxeboot,boot/$ARCH,loader,install/netboot/ubuntu-installer/$ARCH})
-ISO="$(basename $URL)"
+  [ $ARCH ] ||
+  { echo $URL | egrep -q 'x86_64|amd64' && ARCH=amd64 ; echo $URL | grep -q i[3-6]86 && ARCH=i386; ARCH=${ARCH:-unknown}; }
 
-echo $RELEASE | egrep -i -q 'centos|fedora|redhat' &&
-BOOT="method=nfs:${IP}:/srv/install/$RELEASE initrd=${RELEASE}/initrd.img ramdisk_size=10000"
-echo $RELEASE | egrep -i -q 'debian|ubuntu|kali' &&
-BOOT="initrd=${RELEASE}/initrd root=/dev/nfs nfsroot=${IP}:/srv/install/$RELEASE"
+  RELEASE="$DISTRO/$VERSION/$ARCH"
+  [ $DIR ] || DIR=$(echo {.,install,install.*,isolinux,casper,images/pxeboot,boot/$ARCH,loader,install/netboot/ubuntu-installer/$ARCH})
+  ISO="$(basename $URL)"
+
+  echo $RELEASE | egrep -i -q 'centos|fedora|redhat' &&
+  BOOT="method=nfs:${IP}:/srv/install/$RELEASE initrd=${RELEASE}/initrd.img ramdisk_size=10000"
+  echo $RELEASE | egrep -i -q 'debian|ubuntu|kali' &&
+  BOOT="initrd=${RELEASE}/initrd root=/dev/nfs nfsroot=${IP}:/srv/install/$RELEASE"
+  echo $RELEASE | egrep -i -q 'dban' &&
+  BOOT="nuke=dwipe silent floppy=0,16,cmos"
 
 check_dir "1.)"
 download "2.)"
