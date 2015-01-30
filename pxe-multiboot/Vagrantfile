@@ -12,10 +12,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "file", source: "ks.cfg", destination: "ks.cfg"
   config.vm.provision "file", source: "tftpd-hpa", destination: "tftpd-hpa"
   config.vm.provision "file", source: "new_iso.sh", destination: "new_iso"
+  config.vm.provision "file", source: "new_pex.sh", destination: "new_pxe"
   config.vm.provision "shell", path: "provision.sh"
 
-  config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.0.1 --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-amd64.iso"
-  config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.0.1 --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-i386.iso"
+  # config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.0.1 --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-amd64.iso"
+  # config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.0.1 --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-i386.iso"
 
   # config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.04-NetBoot --url http://archive.ubuntu.com/ubuntu/dists/trusty-updates/main/installer-i386/current/images/netboot/mini.iso"
   # config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.04-NetBoot --url http://archive.ubuntu.com/ubuntu/dists/trusty-updates/main/installer-amd64/current/images/netboot/mini.iso"
@@ -24,11 +25,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # config.vm.provision "shell", path: "new_iso.sh", args: "--os Fedora --version 21 --url http://download.fedoraproject.org/pub/fedora/linux/releases/21/Server/x86_64/iso/Fedora-Server-netinst-x86_64-21.iso"
   # config.vm.provision "shell", path: "new_iso.sh", args: "--os Kali --version 1.0.9a --url http://cdimage.kali.org/kali-1.0.9a/kali-linux-1.0.9a-i386.iso"
   # config.vm.provision "shell", path: "new_iso.sh", args: "--os Kali --version 1.0.9a --url http://cdimage.kali.org/kali-1.0.9a/kali-linux-1.0.9a-amd64.iso"
+  # config.vm.provision "shell", path: "new_iso.sh", args: "--os dban --version 2.2.8 --url http://sourceforge.net/projects/dban/files/dban/dban-2.2.8/dban-2.2.8_i586.iso --kernel dban.bzi"
 
   config.vm.provider "virtualbox" do |vb|
       vb.gui = false
       vb.name = "multi-pxe"
-      vb.customize ["modifyvm", :id, "--memory", "2048"]
+      vb.customize ["modifyvm", :id, "--memory", "4096"]
       vb.customize ["modifyvm", :id, "--cpus", 3]
    end
 
