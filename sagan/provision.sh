@@ -163,7 +163,7 @@ install_barnyard(){
     cd barnyard2
     ./autogen.sh
     [ "$OS" = "debian" ] && ./configure --with-mysql --with-mysql-libraries=/usr/lib/x86_64-linux-gnu && make && make install || die "Barnyard2 failed to install"
-    [ "$OS" = "el" ] && ./configure --with-mysql --with-mysql-libraries=--with-mysql-libraries=/usr/lib64/ && make && make install || die "Barnyard2 failed to install"
+    [ "$OS" = "el" ] && ./configure --with-mysql --with-mysql-libraries=/usr/lib64 && make && make install || die "Barnyard2 failed to install"
   fi
   [ -d /var/log/barnyard2 ] || mkdir /var/log/barnyard2
   [ -e /usr/local/etc/barnyard2-sagan.conf ] || install -o root -g root -m 600 $VAGRANT/barnyard2-sagan.conf /usr/local/etc/barnyard2-sagan.conf
