@@ -6,9 +6,10 @@
 VAGRANT=/home/vagrant
 HOME=/root
 DAQ=2.0.4
-PACKAGES="cowsay git build-essential checkinstall automake autoconf pkg-config libtool libpcre3-dev libpcre3 libdumbnet1 libdumbnet-dev libesmtp-dev libpcap-dev libgeoip-dev libjson0 libjson0-dev libcurl4-openssl-dev"
-[ -e /etc/redhat-release ] && OS=el
+[ -e /etc/redhat-release ] && OS=el && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/lib64/pkgconfig/"
 [ -e /etc/debian_version ] && OS=debian
+[ "$OS" = "debian" ] && PACKAGES="cowsay git build-essential checkinstall automake autoconf pkg-config libtool libpcre3-dev libpcre3 libdumbnet1 libdumbnet-dev libesmtp-dev libpcap-dev libgeoip-dev libjson0 libjson0-dev libcurl4-openssl-dev"
+[ "$OS" = "el" ] && PACKAGES="git gcc gnutls-devel gcc-c++ autoconf automake mysql mysql-devel mysql-client pcre pcre-devel libesmtp libesmtp-devel libdnet libnet-devel libpcap-devel json-c-devel geoip-devel geoip libcurl-devel"
 
 # Installation notification
 MAIL=$(which mail)
@@ -66,8 +67,8 @@ package_check(){
     return 0
   else
     echo "Installing packages for function!"
-    [ "$OS" = "debian" ] && yum install -qy $packages
-    [ "$OS" = "el" ]     && apt-get install -qy $packages
+    [ "$OS" = "debian" ] && apt-get install -qy $packages
+    [ "$OS" = "el" ]     && yum install -qy $packages
   fi
 }
 
@@ -87,16 +88,16 @@ install_sagan(){
   if ! [ -f /usr/local/sbin/sagan ]
   then
     rm -rf sagan
-    git clone http://github.com/beave/sagan || die "Clone of sagan repo failed"
+    git clone https://github.com/beave/sagan || die "Clone of sagan repo failed"
     cd sagan
-    ./configure --enable-geoip --enable-esmtp --enable-libpcap && make && make install
+    ./configure --enable-geoip --enable-esmtp && make && make install
   fi
 
   cd $HOME
 
   if ! [ -d /usr/local/etc/sagan-rules ]
   then
-    git clone http://github.com/beave/sagan-rules /usr/local/etc/sagan-rules || die "Clone of sagan-rules repo failed"
+    git clone https://github.com/beave/sagan-rules /usr/local/etc/sagan-rules || die "Clone of sagan-rules repo failed"
   fi
 
   cd $HOME
@@ -115,6 +116,7 @@ configuration(){
     /etc/rsyslog.d/sagan.conf && restart rsyslog)
   [ -e /etc/init/sagan.conf ] || (install -o root -g root -m 644 $VAGRANT/sagan.upstart \
     /etc/init/sagan.conf && start sagan)
+  echo "/usr/local/lib/" > /etc/ld.so.conf.d/sagan.conf && ldconfig
 }
 
 install_daq(){
@@ -123,7 +125,7 @@ install_daq(){
   then
     package_check bison flex
     rm -fr daq-${DAQ}*
-    wget https://www.snort.org/downloads/snort/daq-${DAQ}.tar.gz || die "Failed to download daq-${DAQ}"
+    wget --no-check-certificate https://www.snort.org/downloads/snort/daq-${DAQ}.tar.gz -O daq-${DAQ}.tar.gz || die "Failed to download daq-${DAQ}"
     tar zxf daq-${DAQ}.tar.gz
     cd daq-${DAQ}
     ./configure && make && make install || die "DAQ ${DAQ} failed to install"
@@ -131,9 +133,25 @@ install_daq(){
   cd $HOME
 }
 
+install_libdnet(){
+  [ "$OS" = "debian" ] && return 0
+  if ! [ -f /usr/local/include/dnet.h ]
+  then
+    rm -rf libdnet-1.11*
+    wget http://downloads.sourceforge.net/project/libdnet/libdnet/libdnet-1.11/libdnet-1.11.tar.gz || die "Failed to download libdnet"
+    tar zxf libdnet-1.11.tar.gz
+    cd libdnet-1.11
+    ls
+    ./configure
+    make
+    make install
+  fi
+}
+
 install_barnyard(){
   # Get dependency
   install_daq
+  install_libdnet
 
   hi "$1 $FUNCNAME\n"
   if ! [ -f /usr/local/bin/barnyard2 ]
@@ -143,7 +161,9 @@ install_barnyard(){
     ln -f -s /usr/include/dumbnet.h /usr/include/dnet.h
     git clone https://github.com/firnsy/barnyard2 || die "Clone of barnyard2 repo failed"
     cd barnyard2
-    ./autogen.sh && ./configure --with-mysql --with-mysql-libraries=/usr/lib/x86_64-linux-gnu && make && make install || die "Barnyard2 failed to install"
+    ./autogen.sh
+    [ "$OS" = "debian" ] && ./configure --with-mysql --with-mysql-libraries=/usr/lib/x86_64-linux-gnu && make && make install || die "Barnyard2 failed to install"
+    [ "$OS" = "el" ] && ./configure --with-mysql --with-mysql-libraries=--with-mysql-libraries=/usr/lib64/ && make && make install || die "Barnyard2 failed to install"
   fi
   [ -d /var/log/barnyard2 ] || mkdir /var/log/barnyard2
   [ -e /usr/local/etc/barnyard2-sagan.conf ] || install -o root -g root -m 600 $VAGRANT/barnyard2-sagan.conf /usr/local/etc/barnyard2-sagan.conf
