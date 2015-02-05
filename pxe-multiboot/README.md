@@ -21,12 +21,13 @@ config.vm.provision "shell", path: "provision.sh", args: "http://releases.ubuntu
 
 Use the new_iso and new_pxe scripts to install new images.
 
-The following command will add CentOS as an option to boot from, it will configure the entire thing beginning with downloading the iso, for PXE booting.
+The following command will add CentOS and DBAN as options to boot from, it will configure the entire thing beginning with downloading the iso, for PXE booting.
 ```
   ./new_iso --os CentOS --version 7.0 --url http://mirror.cs.uwp.edu/pub/centos/7.0.1406/isos/x86_64/CentOS-7.0-1406-x86_64-Minimal.iso"
+  ./new_iso --os dban --version 2.2.8 --url http://sourceforge.net/projects/dban/files/dban/dban-2.2.8/dban-2.2.8_i586.iso --kernel dban.bzi"
 ```
 
-The following backup and replace the menu system to install Kali Linux via PXE.
+The following command will backup and replace the menu system to install Kali Linux via PXE boot.
 ```
   ./new_pxe --url http://repo.kali.org/kali/dists/kali/main/installer-i386/current/images/netboot/netboot.tar.gz
 ```

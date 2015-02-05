@@ -176,6 +176,8 @@ start_services(){
   service nfs-kernel-server restart || die "Failed to start nfs-kernel-server"
 }
 
+ping -c 1 -t 2 8.8.8.8 1>/dev/null 2>/dev/null || die "Your vagrant bridge interface should be connected not to the internet!"
+
 install_dependencies "1.)"
 configuration "2.)"
 start_services "3.)"

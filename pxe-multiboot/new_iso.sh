@@ -102,7 +102,7 @@ check_dir(){
   [ -d $ISO_DIR ]                              || mkdir $ISO_DIR
   [ -d /srv/install ]                          || mkdir -p /srv/install
   [ -d /mnt/loop ]                             || mkdir /mnt/loop
-  mount | grep -q /mnt/loop                    && umount /mnt/loop
+  mount | grep -q /mnt/loop                    && umount /mnt/loop || die "Unable to unmount /mnt/loop!"
 }
 
 download(){
@@ -121,7 +121,7 @@ configuration(){
   do
     [ -e /mnt/loop/$i/$KERNEL ] 2>/dev/null && cp /mnt/loop/$i/$KERNEL /var/lib/tftpboot/$RELEASE
     [ -e /mnt/loop/$i/$RAMDISK ] 2>/dev/null && cp /mnt/loop/$i/$RAMDISK /var/lib/tftpboot/$RELEASE
-    file /var/lib/tftpboot/$RELEASE/$RAMDISK | grep -q gzip && gzip -d /var/lib/tftpboot/$RELEASE/$RAMDISK
+    #file /var/lib/tftpboot/$RELEASE/$RAMDISK | grep -q gzip && gzip -d /var/lib/tftpboot/$RELEASE/$RAMDISK
   done
 
   cp -R /mnt/loop/* /srv/install/$RELEASE
@@ -174,13 +174,15 @@ done
   { echo $URL | egrep -q 'x86_64|amd64' && ARCH=amd64 ; echo $URL | grep -q i[3-6]86 && ARCH=i386; ARCH=${ARCH:-unknown}; }
 
   RELEASE="$DISTRO/$VERSION/$ARCH"
-  [ $DIR ] || DIR=$(echo {.,install/netboot/ubuntu-installer/$ARCH,install,install.*,isolinux,casper,images/pxeboot,boot/$ARCH,loader})
+  [ $DIR ] || DIR=$(echo {.,install/netboot/ubuntu-installer/$ARCH,install,install.*,boot/$ARCH/loader,isolinux,casper,images/pxeboot,boot/$ARCH,loader})
   ISO="$(basename $URL)"
 
   echo $RELEASE | egrep -i -q 'centos|fedora|redhat' &&
   BOOT="method=nfs:${IP}:/srv/install/$RELEASE initrd=${RELEASE}/initrd.img ramdisk_size=10000"
   echo $RELEASE | egrep -i -q 'debian|ubuntu|kali' &&
-  BOOT="initrd=${RELEASE}/initrd root=/dev/nfs nfsroot=${IP}:/srv/install/$RELEASE"
+  BOOT="initrd=${RELEASE}/initrd.gz root=/dev/nfs nfsroot=${IP}:/srv/install/$RELEASE"
+  echo $RELEASE | egrep -i -q 'opensuse' &&
+  BOOT="initrd=${RELEASE}/initrd install=nfs://${IP}:/srv/install/$RELEASE showopts"
   echo $RELEASE | egrep -i -q 'dban' &&
   BOOT="nuke=dwipe silent floppy=0,16,cmos"
 
