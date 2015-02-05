@@ -91,7 +91,8 @@ package_check(){
 check_dir(){
   hi "$1 $FUNCNAME"
   [ -d $PXE_DIR ]                              || mkdir $PXE_DIR
-  [ -e $PXE_DIR/pxelinux.0 ]                   && rm -rf $TFTPROOT/*
+  [ -e $PXE_DIR/pxelinux.0 ]                   && mv $TFTPROOT ${TFTPROOT}-${RANDOM}
+  [ -d $TFTPROOT ]                             || mkdir $TFTPROOT
 }
 
 download(){
@@ -99,7 +100,9 @@ download(){
 }
 
 configuration(){
-  tar zxf $PXE_DIR/$ARCHIVE -C $TFTPROOT
+  file $PXE_DIR/$ARCHIVE | grep -q gzip && tar zxf $PXE_DIR/$ARCHIVE -C $TFTPROOT || die "$ARCHIVE is not a tar gzip file"
+  pkill tftpd
+  service tftpd-hpa start         || die "Failed to start ftpd-hpa"
 }
 
 argcheck 1
