@@ -174,7 +174,7 @@ done
   { echo $URL | egrep -q 'x86_64|amd64' && ARCH=amd64 ; echo $URL | grep -q i[3-6]86 && ARCH=i386; ARCH=${ARCH:-unknown}; }
 
   RELEASE="$DISTRO/$VERSION/$ARCH"
-  [ $DIR ] || DIR=$(echo {.,install/netboot/ubuntu-installer/$ARCH,install,install.*,boot/$ARCH/loader,isolinux,casper,images/pxeboot,boot/$ARCH,loader})
+  [ $DIR ] || DIR=$(echo {.,install,install.*,boot/$ARCH/loader,isolinux,casper,images/pxeboot,boot/$ARCH,loader,install/netboot/ubuntu-installer/$ARCH})
   ISO="$(basename $URL)"
 
   echo $RELEASE | egrep -i -q 'centos|fedora|redhat' &&
