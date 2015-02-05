@@ -16,8 +16,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell", path: "provision.sh"
 
 
-  # config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.0.1 --kernel linux --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-amd64.iso"
-  # config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.0.1 --kernel linux --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-i386.iso"
+  # config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.0.1 --ramdisk initrd.gz --kernel linux --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-amd64.iso"
+   config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.0.1 --ramdisk initrd.gz --kernel linux --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-i386.iso"
 
   # config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.04-NetBoot --url http://archive.ubuntu.com/ubuntu/dists/trusty-updates/main/installer-i386/current/images/netboot/mini.iso"
   # config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.04-NetBoot --url http://archive.ubuntu.com/ubuntu/dists/trusty-updates/main/installer-amd64/current/images/netboot/mini.iso"

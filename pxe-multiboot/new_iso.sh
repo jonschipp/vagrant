@@ -8,7 +8,7 @@ SYSLINUX=/usr/lib/syslinux/pxelinux.0
 NIC=eth1
 IP=$(ifconfig $NIC | grep 'inet addr:' | cut -d: -f2 | awk '{print $1}')
 KERNEL="vmlinuz"
-RAMDISK="initrd*"
+RAMDISK="initrd"
 
 # Installation notification
 MAIL=$(which mail)
@@ -36,7 +36,7 @@ Each option is required.
      --arch     Set arch if not listed in url as i386/amd64/x86_64
      --dir      Set directory of kernel in iso e.g. images/pxeboot (def: best guess)
 
-Usage: $0 --os Ubuntu --version 14.0.1 --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-amd64.iso
+Usage: $0 --os Ubuntu --version 14.0.1 --ramdisk initrd.gz --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-amd64.iso
 EOF
 }
 
@@ -102,7 +102,7 @@ check_dir(){
   [ -d $ISO_DIR ]                              || mkdir $ISO_DIR
   [ -d /srv/install ]                          || mkdir -p /srv/install
   [ -d /mnt/loop ]                             || mkdir /mnt/loop
-  mount | grep -q /mnt/loop                    && umount /mnt/loop || die "Unable to unmount /mnt/loop!"
+  mount | grep -q /mnt/loop                    && { umount /mnt/loop || die "Unable to unmount /mnt/loop!"; }
 }
 
 download(){

@@ -16,7 +16,7 @@ config.vm.network "public_network", bridge: 'en0: Ethernet Alias'
 
 You can set args a valid iso url to deploy the image of your choice.
 ```
-config.vm.provision "shell", path: "provision.sh", args: "http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-amd64.iso"
+config.vm.provision "shell", path: "new_iso.sh", args: "--os Ubuntu --version 14.0.1 --ramdisk initrd.gz --kernel linux --url http://releases.ubuntu.com/14.04/ubuntu-14.04.1-server-amd64.iso"
 ```
 
 Use the new_iso and new_pxe scripts to install new images.
