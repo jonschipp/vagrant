@@ -68,8 +68,8 @@ package_check(){
     return 0
   else
     echo "Installing packages for function!"
-    [ "$OS" = "debian" ] && yum install -qy $packages
-    [ "$OS" = "el" ]     && apt-get install -qy $packages
+    [ "$OS" = "debian" ] && apt-get install -qy $packages
+    [ "$OS" = "el" ]     && yum install -qy $packages
   fi
 }
 
