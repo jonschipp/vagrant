@@ -6,7 +6,7 @@ $ vagrant up
 ```
 
 will provision a new PXE server with Linux images on your LAN via bridged network mode.
-It automatically detects your IP address and configures dhcpd, tftpd, etc. for you and will begin serving out the image to DCHP clients.
+It automatically detects your IP address and configures dhcpd, tftpd, etc. for you and will begin serving out the image to DHCP clients.
 Fire up the VM and then PXE boot a computer on your LAN.
 
 Change bridge to your interface if it differs.
