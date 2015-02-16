@@ -31,9 +31,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     node1.vm.provision "shell", path: "provision.sh", privileged: "true"
     node1.vm.provider "virtualbox" do |vm1|
       vm1.name = "node1"
-      vm1.customize ["modifyvm", :id, "--memory", "2048"]
+      vm1.customize ["modifyvm", :id, "--memory", "4096"]
       vm1.customize ["modifyvm", :id, "--cpus", 3]
       vm1.customize ["modifyvm", :id, "--audio", "none", "--usb", "on", "--usbehci", "off"]
+      #vm1.customize ["modifyvm", :id, "--hwvirtex", "off"]
       unless File.exist?(node1_disk)
         vm1.customize ['createhd', '--filename', node1_disk, '--size', 100000]
       end
@@ -54,9 +55,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     node2.vm.provision "shell", path: "provision.sh", privileged: "true"
     node2.vm.provider "virtualbox" do |vm2|
       vm2.name = "node2"
-      vm2.customize ["modifyvm", :id, "--memory", "2048"]
+      vm2.customize ["modifyvm", :id, "--memory", "4096"]
       vm2.customize ["modifyvm", :id, "--cpus", 3]
       vm2.customize ["modifyvm", :id, "--audio", "none", "--usb", "on", "--usbehci", "off"]
+      #vm2.customize ["modifyvm", :id, "--hwvirtex", "off"]
       unless File.exist?(node2_disk)
         vm2.customize ['createhd', '--filename', node2_disk, '--size', 100000]
       end

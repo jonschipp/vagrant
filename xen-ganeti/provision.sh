@@ -7,7 +7,6 @@ BPF=0
 COWSAY=/usr/games/cowsay
 cd $HOME
 
-# /usr/lib/ganeti/tools/burnin -v -d -o debootstrap+default --disk-size=1024m --mem-size=128m -p instance1
 function die {
   $COWSAY -d "$* MooOoOOoo"
   exit 1
@@ -26,8 +25,8 @@ function install_dependencies {
   apt-get -qy install bridge-utils xen-hypervisor-amd64 xen-tools
 
   # Ganeti
-  apt-get -qy install drbd8-utils ganeti-htools fai-client ghc \
-  libghc-json-dev libghc-network-dev libghc-parallel-dev libghc-curl-dev \
+  apt-get -qy install ganeti kpartx dump drbd8-utils ganeti-htools fai-client \
+  libghc-json-dev libghc-network-dev libghc-parallel-dev libghc-curl-dev ghc \
   linux-image-extra-virtual lvm2 iproute iputils-arping make m4 ndisc6 \
   python python-openssl openssl python-pyparsing python-simplejson python-bitarray \
   python-pyinotify python-pycurl python-ipaddr socat fping python-paramiko python-psutil \
@@ -69,7 +68,7 @@ function install_ganeti_debootstrap {
   deb=$(basename $url)
   cd $HOME
   [ -e $deb ] || { wget $url || die "Failed to download ganeti-instance-debootstrap"; }
-  dpkg -l | -q grep "ganeti-instance-debootstrap.*0.14-2" || dpkg --install $deb
+  dpkg -l | grep -q "ganeti-instance-debootstrap.*0.14-2" || dpkg --install $deb
   hi "Ganeti Debootstrap installed!"
 }
 
@@ -81,25 +80,22 @@ function install_snf_image {
   apt-get install -y snf-image
 }
 
-function install_instance_image {
-}
-
 function system_configuration {
   cd $HOME
   # System and network configuration
-  ! grep -s -q dom0_mem=512 /etc/default/grub.d/xen.cfg && \
-  sed -i '1s/^/GRUB_CMDLINE_XEN_DEFAULT="dom0_mem=512M,max:512M dom0_max_vcpus=1 dom0_vcpus_pin=1"/' /etc/default/grub.d/xen.cfg && \
-     update-grub2
+  #! grep -s -q dom0_mem=512 /etc/default/grub.d/xen.cfg && \
+  #sed -i '1s/^/GRUB_CMDLINE_XEN_DEFAULT="dom0_mem=512M,max:512M dom0_max_vcpus=1 dom0_vcpus_pin=1"/' /etc/default/grub.d/xen.cfg && \
+  #   update-grub2
   echo "service ssh restart" > /etc/init.d/ssh # Bug: https://bugs.launchpad.net/ubuntu/+source/ganeti/+bug/1308571
   echo "${HOSTNAME}.test" > /etc/hostname
   sed -i -e '/#autoballoon/s/^#//' -e '/^autoballoon/s/auto/off/2' /etc/xen/xl.conf
   sed -i '/dowait 120/d'  /etc/init/cloud-init-nonet.conf
-  sed -i 's/dowait/10/2/' /etc/init/cloud-init-nonet.conf
+  sed -i 's/dowait/10/2' /etc/init/cloud-init-nonet.conf
   sed -i '/sleep 40/d' /etc/init/failsafe.conf
   sed -i '/sleep 59/d' /etc/init/failsafe.conf
   ln -f -s /boot/vmlinuz-$(uname -r) /boot/vmlinuz-3-xenU
   ln -f -s /boot/initrd.img-$(uname -r) /boot/initrd-3-xenU
-  echo 'export PATH=$PATH:/usr/local/share/ganeti/2.12/:/usr/local/lib/ganeti/2.12/usr/local/sbin/' > /etc/profile.d/ganeti.sh
+  grep -q xen_blkfront /etc/initramfs-tools/modules || { echo "xen_blkfront" >> /etc/initramfs-tools/modules && update-initramfs -u; }
 
   [ -e $VAGRANT/interfaces* ] && install -o root -g root -m 644 $VAGRANT/interfaces* /etc/network/interfaces.d/xen.cfg
   [ -e $VAGRANT/hosts ] && install -o root -g root -m 644 $VAGRANT/hosts /etc/hosts
@@ -153,8 +149,8 @@ function lvm_configuration {
 if ! which xen 2>&1 > /dev/null; then
  	install_dependencies
         install_ganeti_debootstrap
-        install_snf_image # 3rd party tool
-        install_instance_image # 3rd party tool
+        #install_snf_image # 3rd party tool
+        #install_instance_image # 3rd party tool
         system_configuration
 fi
 
@@ -164,6 +160,8 @@ $ vagrant ssh node1
 $ gnt-cluster init --enabled-hypervisors=xen-pvm --hypervisor-parameters xen-pvm:xen_cmd=xl --vg-name ganeti --nic-parameters link=xenbr0 \
 --master-netdev xenbr0 --secondary-ip 192.168.1.10 --no-ssh-init xen-cluster.test
 $ gnt-node add -v -d --no-ssh-key-check --master-capable=yes --vm-capable=yes --secondary-ip 192.168.1.20 xen-node2.test
+Run VM cluster tests on node1:
+$ /usr/lib/ganeti/tools/burnin -v -d -o debootstrap+default --disk-size=1024m --mem-size=128m -p instance1
 EOF
 #--backend-parameters vcpus=1,minmem=64,maxmem=256M,always_failover=true
 
