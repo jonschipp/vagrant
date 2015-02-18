@@ -37,8 +37,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       #vm1.customize ["modifyvm", :id, "--hwvirtex", "off"]
       unless File.exist?(node1_disk)
         vm1.customize ['createhd', '--filename', node1_disk, '--size', 100000]
+        vm1.customize ['storageattach', :id, '--storagectl', 'SATAController', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', node1_disk]
       end
-      vm1.customize ['storageattach', :id, '--storagectl', 'SATAController', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', node1_disk]
       vm1.gui = true
     end
   end
@@ -61,8 +61,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       #vm2.customize ["modifyvm", :id, "--hwvirtex", "off"]
       unless File.exist?(node2_disk)
         vm2.customize ['createhd', '--filename', node2_disk, '--size', 100000]
+        vm2.customize ['storageattach', :id, '--storagectl', 'SATAController', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', node2_disk]
       end
-      vm2.customize ['storageattach', :id, '--storagectl', 'SATAController', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', node2_disk]
       vm2.gui = true
     end
   end

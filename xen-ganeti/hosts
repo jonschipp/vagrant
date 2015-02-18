@@ -6,11 +6,11 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 
 # Ganeti cluster name
-10.2.2.5 xen-cluster.test xen-cluster cluster
+10.2.2.5 xen-cluster.test
 
 # Ganeti hosts
-10.2.2.10 xen-node1.test xen-node1 node1
-10.2.2.20 xen-node2.test xen-node2 node2
+10.2.2.10 xen-node1.test
+10.2.2.20 xen-node2.test
 
 # Test VM's
 10.2.2.30 instance1

@@ -85,7 +85,7 @@ function system_configuration {
   # System and network configuration
   #! grep -s -q dom0_mem=512 /etc/default/grub.d/xen.cfg && \
   #sed -i '1s/^/GRUB_CMDLINE_XEN_DEFAULT="dom0_mem=512M,max:512M dom0_max_vcpus=1 dom0_vcpus_pin=1"/' /etc/default/grub.d/xen.cfg && \
-  #   update-grub2
+  sed -i '1s/^/GRUB_CMDLINE_XEN_DEFAULT="dom0_max_vcpus=1, dom0_vcpus_pin=1"/' /etc/default/grub.d/xen.cfg && update-grub2
   echo "service ssh restart" > /etc/init.d/ssh # Bug: https://bugs.launchpad.net/ubuntu/+source/ganeti/+bug/1308571
   echo "${HOSTNAME}.test" > /etc/hostname
   sed -i -e '/#autoballoon/s/^#//' -e '/^autoballoon/s/auto/off/2' /etc/xen/xl.conf
