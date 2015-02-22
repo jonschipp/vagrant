@@ -1,6 +1,8 @@
 PXE Multiboot Server
 ====================
 
+![PXE Boot Screenshot](http://jonschipp.com/pics/pxe-multiboot.jpg)
+
 ```
 $ vagrant up
 ```
