@@ -9,7 +9,7 @@ DAQ=2.0.4
 [ -e /etc/redhat-release ] && OS=el && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/lib64/pkgconfig/"
 [ -e /etc/debian_version ] && OS=debian
 [ "$OS" = "debian" ] && PACKAGES="cowsay git build-essential checkinstall automake autoconf pkg-config libtool libpcre3-dev libpcre3 libdumbnet1 libdumbnet-dev libesmtp-dev libpcap-dev libgeoip-dev libjson0 libjson0-dev libcurl4-openssl-dev"
-[ "$OS" = "el" ] && PACKAGES="git gcc gnutls-devel gcc-c++ autoconf automake mysql mysql-devel mysql-client pcre pcre-devel libesmtp libesmtp-devel libdnet libnet-devel libpcap-devel json-c-devel geoip-devel geoip libcurl-devel"
+[ "$OS" = "el" ] && PACKAGES="git gcc gnutls-devel gcc-c++ autoconf automake libtool mysql mysql-devel mysql-client pcre pcre-devel libesmtp libesmtp-devel libdnet libnet-devel libpcap-devel json-c-devel geoip-devel geoip libcurl-devel"
 
 # Installation notification
 MAIL=$(which mail)
