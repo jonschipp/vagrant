@@ -113,6 +113,13 @@ install_paxctld(){
   [ -f /sbin/paxctld ] || wget --quiet https://grsecurity.net/paxctld/$PAXCTLD
   [ -f $PAXCTLD ] && dpkg --install $PAXCTLD
 }
+packages(){
+  DEBS="gradm2 paxctl prelude-lml linux-grsec-base"
+  apt-key adv --fetch-keys http://www.corsac.net/71ef0ba8.asc
+  apt-get update -qq
+  ! [ -f /etc/apt/sources.list.d/grsec.list ] || echo "deb http://molly.corsac.net/~corsac/debian/kernel-grsec/packages/ sid/" > /etc/apt/sources.list.d/grsec.list
+  package_check $DEBS
+}
 
 [ "$UNAME" = "${VERS}-grsec" ] || install_dependencies "1.)"
 [ -f /boot/vmlinuz-${VERS}-grsec ] || compile_kernel "2.)"
