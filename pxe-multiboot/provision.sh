@@ -5,7 +5,7 @@ HOME=/root
 VAGRANT=/home/vagrant
 PACKAGES="cowsay apache2 tftpd-hpa inetutils-inetd isc-dhcp-server syslinux nfs-kernel-server"
 KS=/var/www/html/ubuntu/install/ks.cfg
-NIC=eth1
+NIC=eth1 # Vagrantfile: :adapter => 2
 IP=$(ifconfig $NIC | grep 'inet addr:' | cut -d: -f2 | awk '{print $1}')
 MASK=$(ifconfig $NIC | grep 'inet addr:' | cut -d: -f4 | awk '{ print $1 }')
 BROADCAST=$(ifconfig $NIC | grep 'inet addr:' | cut -d: -f3 | awk '{ print $1 }')
