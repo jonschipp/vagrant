@@ -11,8 +11,10 @@ SCRIPT
 # libgoogle-perftools-dev
 
 $keys = <<SCRIPT
-mkdir /root/.ssh && sudo chown root:root /root/.ssh && sudo chmod 0600 /root/.ssh
-install -o root -g root -m 400 /home/vagrant/.ssh/insecure-ssh-key.pub /root/.ssh/authorized_keys
+test -d /root/.ssh || mkdir /root/.ssh 
+chown root:root /root/.ssh
+chmod 0700 /root/.ssh
+install -o root -g root -m 600 /home/vagrant/.ssh/insecure-ssh-key.pub /root/.ssh/authorized_keys
 SCRIPT
 
 Vagrant.configure(2) do |config|
@@ -24,8 +26,10 @@ Vagrant.configure(2) do |config|
     manager.vm.hostname = "manager.bro.org"
     manager.vm.network "private_network", ip: "10.1.1.10", :netmask => "255.255.255.0", :adapter => 2
     manager.vm.provision "file", source: "insecure-ssh-key", destination: "~/.ssh/id_rsa"
+    manager.vm.provision "file", source: "hosts", destination: "hosts"
+    manager.vm.provision "file", source: "config", destination: "~/.ssh/config"
     manager.vm.provision "file", source: "node.cfg", destination: "node.cfg"
-    # Set to args to "latest" or two-digit version number e.g. "2.2"
+    # Set args to "latest" or version number e.g. "2.4.1"
     manager.vm.provision "shell", path: "provision-manager.sh", privileged: "true", args: "latest"
     manager.vm.provider "virtualbox" do |vb|
       vb.name = "bro-manager"

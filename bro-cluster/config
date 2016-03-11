@@ -1,0 +1,16 @@
+Host node1
+    Hostname 10.1.1.20
+    IdentityFile ~/.ssh/id_rsa
+    StrictHostKeyChecking no
+Host node2
+    Hostname 10.1.1.30
+    IdentityFile ~/.ssh/id_rsa
+    StrictHostKeyChecking no
+Host 10.1.1.20
+    Hostname 10.1.1.20
+    IdentityFile ~/.ssh/id_rsa
+    StrictHostKeyChecking no
+Host 10.1.1.30
+    Hostname 10.1.1.30
+    IdentityFile ~/.ssh/id_rsa
+    StrictHostKeyChecking no

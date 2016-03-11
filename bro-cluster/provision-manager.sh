@@ -13,16 +13,18 @@ function hi {
 }
 
 function configure_ssh {
+  hosts="$HOME/hosts"
+  key="$HOME/.ssh/id_rsa"
+  config="$HOME/.ssh/config"
   # Bro uses this key to configure the nodes
-  if [ ! -d $ROOT/.ssh ]; then
-    mkdir $ROOT/.ssh
-    chown root:root $ROOT/.ssh
-    chmod 600 $ROOT/.ssh
+  if [ ! -d "$ROOT/.ssh" ]; then
+    mkdir "$ROOT/.ssh"
+    chown root:root "$ROOT/.ssh"
+    chmod 700 "$ROOT/.ssh"
   fi
-
-  if [ ! -f $ROOT/.ssh/id_rsa ]; then
-    install -m 400 $HOME/.ssh/id_rsa $ROOT/.ssh/id_rsa
-  fi
+  [ -e "$key" ] && install -m 0600 "$key" "$ROOT/.ssh/id_rsa"
+  [ -e "$config" ] && install -m 0600 "$config" "$ROOT/.ssh/config"
+  [ -e "$hosts" ] && install -m 0644 "$hosts" /etc/hosts
   hi "SSH configuration complete"
 }
 
@@ -71,7 +73,7 @@ function install_latest_bro {
   if [ ! -d /usr/local/bro ]; then
     git clone --recursive git://git.bro.org/bro
     cd bro
-    ./configure || die "Configure failed!"
+    ./configure --disable-broker || die "Configure failed!"
     make || die "Build failed!"
     make install && make install-aux && hi "Bro install successful!" || die "Install failed!"
   fi
@@ -103,12 +105,12 @@ install_dependencies
 install_extras
 
 if [[ $1 == "latest" ]]; then
-	install_latest_bro
+  install_latest_bro
 elif [[ $1 =~ [0-9]\.[0-9] ]]; then
-	VERSION=$1
-	install_bro
+  VERSION=$1
+  install_bro
 else
-	install_latest_bro
+  install_latest_bro
 fi
 
 configure_ssh
