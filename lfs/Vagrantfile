@@ -9,7 +9,7 @@ lfs_disk = './lfs.vdi'
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "debian"
-  config.vm.box_url = "https://www.dropbox.com/s/gxouugzbnjlny1k/debian-7.0-amd64-minimal.box"
+  config.vm.box_url = "http://jakesyl.insomnia247.nl/debian-7.0-amd64-minimal.box"
   config.vm.provision "shell", path: "provision.sh"
   config.vm.synced_folder "~/", "/vagrant"
 
